@@ -7,7 +7,7 @@ class Task(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey("user.User",on_delete=models.CASCADE)
-    status = models.ForeignKey("Task_status",on_delete=models.CASCADE)
+    status_id = models.ForeignKey("Task_status",on_delete=models.CASCADE)
     repo_id = models.ForeignKey("repository.Repository",on_delete=models.CASCADE)
     
     class Meta:
