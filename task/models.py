@@ -6,15 +6,15 @@ class Task(models.Model):
     description = models.CharField(max_length=500)
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey("user.User",on_delete=models.SET_NULL)
-    status = models.ForeignKey("Task_status",on_delete=models.SET_DEFAULT)
+    created_by = models.ForeignKey("user.User",on_delete=models.CASCADE)
+    status = models.ForeignKey("Task_status",on_delete=models.CASCADE)
     repo_id = models.ForeignKey("repository.Repository",on_delete=models.CASCADE)
     
     class Meta:
         db_table = 'tms_task'
 
 class Task_status(models.Model):
-    status_id = models.PositiveSmallIntegerField(primary_key=True,default=0)
+    status_id = models.PositiveSmallIntegerField(primary_key=True)
     status_name = models.CharField(max_length=30)
     
     class Meta:
