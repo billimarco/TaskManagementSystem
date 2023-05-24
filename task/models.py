@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 class Task(models.Model):
@@ -8,6 +9,11 @@ class Task(models.Model):
         WAITING = "W", _("Waiting")
         FINISHED = "F", _("Finished")
         REMOVED = "R", _("Removed")
+        
+    class Task_priority(models.TextChoices):
+        DEFERABLE = "D", _("Deferable")
+        MODERATE = "M", _("Moderate")
+        URGENT = "U", _("Urgent")
 
     task_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=80)
@@ -15,7 +21,8 @@ class Task(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=1,choices=Task_status.choices,default=Task_status.NEW)
-    created_by = models.ForeignKey("user.User",on_delete=models.CASCADE)
+    priority = models.CharField(max_length=1,choices=Task_priority.choices,default=Task_priority.DEFERABLE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     repo_id = models.ForeignKey("repository.Repository",on_delete=models.CASCADE)
     
     class Meta:
@@ -23,7 +30,7 @@ class Task(models.Model):
         
 class Task_assignament(models.Model):
     task_id = models.ForeignKey("Task",on_delete=models.CASCADE)
-    username = models.ForeignKey("user.User",on_delete=models.CASCADE)
+    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     
     class Meta:
         db_table = 'tms_task_assignament'
