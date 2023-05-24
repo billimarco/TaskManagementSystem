@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Assigned Tasks{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<!-- Tasks List -->
+{% for task in object_list %}
+<div class="card">
+  <div class="card-header">
+    <span class="fw-bold">
+      {{ task.task_id.title }}
+    </span> &middot;
+    <span> {{ task.task_id.get_priority_display }} | {{ task.task_id.get_status_display }}</span>
+  </div>
+  <div class="card-body">
+    {{ task.task_id.description }}
+  </div>
+  <div class="card-footer text-center text-muted">
+    <span>Created {{ task.task_id.created }} by {{ task.task_id.created_by }}</span>
+    <p><a class="btn btn-primary" href="" role="button">History</a></p>
+    <p><a class="btn btn-warning" href="" role="button">Modify</a></p>
+    <p><a class="btn btn-danger" href="" role="button">Delete</a></p>
+  </div>
+</div>
+<br />
+{% endfor %}
+{% endif %}
+{% endblock content %}

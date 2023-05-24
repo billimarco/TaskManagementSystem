@@ -37,8 +37,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    
+    "crispy_forms", #new
+    "crispy_bootstrap5", #new
+    
     "repository.apps.RepositoryConfig", #new added
-    "task.apps.TaskConfig" #new added
+    "task.apps.TaskConfig", #new added
+    "home.apps.HomeConfig", #new added
+    "accounts.apps.AccountsConfig", #new added
 ]
 
 MIDDLEWARE = [
@@ -56,7 +62,7 @@ ROOT_URLCONF = "TaskManagementSystem.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"], #new added
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -112,6 +118,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
+
+LOGIN_REDIRECT_URL = "home" #new
+LOGOUT_REDIRECT_URL = "home" #new
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5" #new
+CRISPY_TEMPLATE_PACK = "bootstrap5" #new
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
