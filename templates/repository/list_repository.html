@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Repository{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<!-- Repository List -->
+{% if repo_list %}
+{% for repository in repo_list %}
+<div class="card">
+  <div class="card-body">
+    <span class="fw-bold">
+      <a href="{% url 'repository_detail' repository.repo_id.repo_id repository.repo_id.name %}">{{ repository.repo_id.name }}</a>
+    </span>
+  </div>
+  <div class="card-footer text-center text-muted">
+    <span>Created {{ repository.repo_id.created }} by {{ repository.repo_id.created_by }}</span>
+    <span>Last modified {{ repository.repo_id.last_modified }}</span>
+  </div>
+</div>
+<br />
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endblock content %}

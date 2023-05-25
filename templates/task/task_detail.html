@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="task-entry">
+  <h2>{{ task.title }}</h2> {{ task.get_priority_display }} | {{ task.get_status_display }}
+  <p>{{ task.description }}</p>
+</div>
+<div>
+  <p><a href="{% url 'task_edit' task.task_id %}">Edit</a>
+    <a href="{% url 'task_delete' task.task_id %}">Delete</a>
+  </p>
+  <p>Back to <a href="{% url 'list_assigned_tasks' %}">All Assigned Tasks</a>.</p>
+</div>
+{% endblock content %}

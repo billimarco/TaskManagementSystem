@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div class="repository-entry">
+  <h2>{{ repo.name }}</h2>
+</div>
+<div>
+  <p>
+    <a class="btn btn-primary" href="" role="button">Your repo profile</a>
+    <a class="btn btn-primary" href="" role="button">Add User</a>
+    <a class="btn btn-primary" href="{% url 'task_new' repo.repo_id repo.name %}" role="button">Create Task</a>
+    <a class="btn btn-primary" href="" role="button">Assign Task</a>
+    <a class="btn btn-primary" href="{% url 'role_list' repo.repo_id repo.name %}" role="button">Roles Manager</a>
+    <a class="btn btn-primary" href="" role="button">Cancel Repo</a>
+  </p>
+
+  <!-- Tasks List -->
+  {% for task in Repo_tasks %}
+  <div class="card">
+    <div class="d-inline-flex card-header align-items-center justify-content-between">
+      <div class="text-start">
+        <span class="fw-bold"> {{ task.title }} </span>
+      </div>
+      <div class="text-end">
+        <span>{{ task.get_priority_display }} | {{ task.get_status_display }}</span>
+      </div>
+    </div>
+    <div class="card-body">
+      {{ task.description }}
+    </div>
+    <div class="d-inline-flex card-footer text-center text-muted align-items-center justify-content-between">
+      <div class="text-start">
+        <span>Created {{ task.created }} by {{ task.created_by }}</span>
+      </div>
+      <div class="text-end">
+        <a class="btn btn-primary" href="" role="button">History</a>
+        <a class="btn btn-warning" href="{% url 'task_edit' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">Modify</a>
+        <a class="btn btn-warning" href="{% url 'task_status' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">Change Status</a>
+        <a class="btn btn-warning" href="{% url 'task_delete' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">Delete</a>
+      </div>
+    </div>
+  </div>
+  <br />
+  {% endfor %}
+  <p>Back to <a href="{% url 'repository_list' %}">Repository List</a>.</p>
+</div>
+{% endif %}
+{% endblock content %}

@@ -6,7 +6,7 @@
 {% if user.is_authenticated %}
 <h1>Hi {{ user.username }}!</h1>
 <p><a class="btn btn-primary btn-lg" href="{% url 'list_assigned_tasks' %}" role="button">Watch your assigned tasks</a></p>
-<p><a class="btn btn-primary btn-lg" href="" role="button">Watch your repositories</a></p>
+<p><a class="btn btn-primary btn-lg" href="{% url 'repository_list' %}" role="button">Watch your repositories</a></p>
 <p><a class="btn btn-primary btn-lg" href="" role="button">Create repository</a></p>
 <!-- new -->
 {% else %}

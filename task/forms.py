@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
 
 class Task(models.Model):
     class Task_status(models.TextChoices):
