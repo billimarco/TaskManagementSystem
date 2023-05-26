@@ -10,12 +10,12 @@
 <div class="card">
   <div class="card-body">
     <span class="fw-bold">
-      <a href="{% url 'repository_detail' repository.repo_id.repo_id repository.repo_id.name %}">{{ repository.repo_id.name }}</a>
+      <a href="{% url 'repository_detail' repository.repo_id repository.name %}">{{ repository.name }}</a>
     </span>
   </div>
   <div class="card-footer text-center text-muted">
-    <span>Created {{ repository.repo_id.created }} by {{ repository.repo_id.created_by }}</span>
-    <span>Last modified {{ repository.repo_id.last_modified }}</span>
+    <span>Created {{ repository.created }} by {{ repository.created_by }}</span>
+    <span>Last modified {{ repository.last_modified }}</span>
   </div>
 </div>
 <br />

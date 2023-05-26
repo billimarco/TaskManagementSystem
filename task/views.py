@@ -14,7 +14,7 @@ from django.urls import reverse_lazy,reverse
     
 class AssignedTasksListView(ListView):
     model = Task_assignament
-    template_name = "task/list_assigned_tasks.html"
+    template_name = "list_assigned_tasks.html"
     context_object_name = "task_list"
     
     def get_queryset(self):
@@ -29,7 +29,7 @@ class AssignedTasksListView(ListView):
     
 class TaskDetailView(DetailView):
     model = Task
-    template_name = "task/task_detail.html"
+    template_name = "repository/task/task_detail.html"
     context_object_name = "task"
     
     def get_object(self):
@@ -40,7 +40,7 @@ class CreateTaskView(CreateView):
     fields = ["title",
               "description",
               "priority"]
-    template_name = "task/task_new.html"
+    template_name = "repository/task/task_new.html"
     context_object_name = "task"
     
     def get_success_url(self):
@@ -59,7 +59,7 @@ class ModifyTaskView(UpdateView):
               "description",
               "status",
               "priority"]
-    template_name = "task/task_edit.html"
+    template_name = "repository/task/task_edit.html"
     context_object_name = "task"
     
     def get_success_url(self):
@@ -70,7 +70,7 @@ class ModifyTaskView(UpdateView):
 
 class DeleteTaskView(DeleteView):
     model = Task
-    template_name = "task/task_delete.html"
+    template_name = "repository/task/task_delete.html"
     context_object_name = "task"
     
     def get_success_url(self):
@@ -82,7 +82,7 @@ class DeleteTaskView(DeleteView):
 class ModifyTaskStatusView(UpdateView):
     model = Task
     fields = ["status"]
-    template_name = "task/task_edit.html"
+    template_name = "repository/task/task_edit.html"
     context_object_name = "task"
     
     def get_success_url(self):

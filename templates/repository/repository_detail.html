@@ -8,9 +8,9 @@
 <div>
   <p>
     <a class="btn btn-primary" href="" role="button">Your repo profile</a>
-    <a class="btn btn-primary" href="" role="button">Add User</a>
     <a class="btn btn-primary" href="{% url 'task_new' repo.repo_id repo.name %}" role="button">Create Task</a>
     <a class="btn btn-primary" href="" role="button">Assign Task</a>
+    <a class="btn btn-primary" href="{% url 'repo_user_list' repo.repo_id repo.name %}" role="button">Users Manager</a>
     <a class="btn btn-primary" href="{% url 'role_list' repo.repo_id repo.name %}" role="button">Roles Manager</a>
     <a class="btn btn-primary" href="" role="button">Cancel Repo</a>
   </p>
