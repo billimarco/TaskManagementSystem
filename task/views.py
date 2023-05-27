@@ -6,19 +6,20 @@ from django.http import HttpRequest
 from django.views import View
 from django.views.generic import ListView, DetailView  # new
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from .forms import AssignTaskForm
 from repository.models import Repository,Repo_role
-from task.models import Task,Task_assignament
+from .models import Task,Task_assignment
 from django.shortcuts import redirect
 from django.urls import reverse_lazy,reverse
 
     
 class AssignedTasksListView(ListView):
-    model = Task_assignament
+    model = Task_assignment
     template_name = "list_assigned_tasks.html"
     context_object_name = "task_list"
     
     def get_queryset(self):
-        return Task_assignament.objects.all().filter(username__exact=self.request.user)
+        return Task_assignment.objects.all().filter(username__exact=self.request.user)
 
     def get(self, request: HttpRequest, *args: any, **kwargs: any) -> HttpResponse:
         # If the user is not logged in, redirect to signup page.
@@ -90,4 +91,15 @@ class ModifyTaskStatusView(UpdateView):
     
     def get_object(self):
         return Task.objects.get(task_id=self.kwargs["task_pk"])
+
+class AssignTaskView(CreateView):
+    form_class = AssignTaskForm
+    template_name = "repository/task/task_assign.html"
     
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["repo_id"] = self.kwargs["pk"]
+        return kwargs
+    
+    def get_success_url(self):
+        return reverse("repository_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})

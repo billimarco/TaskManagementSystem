@@ -1,9 +1,11 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
-<h1>Delete repo user</h1>
+<h1>Remove assign role</h1>
 <form action="" method="post">{% csrf_token %}
-  <p>Are you sure you want to remove {{ view.kwargs.user }} from the repository {{ view.kwargs.name }}?</p>
+  <p>are you sure to remove the {{ view.kwargs.role_name }} role from the user {{ view.kwargs.user }}?</p>
   <button class="btn btn-danger ml-2" type="submit">Confirm</button>
 </form>
+
 {% endblock content %}

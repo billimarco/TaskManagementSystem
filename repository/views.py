@@ -1,14 +1,15 @@
-from typing import Any
+from typing import Any, Optional
+from django.db import models
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpRequest
 from django.views import View
 from django.views.generic import ListView, DetailView  # new
 from django.views.generic.edit import FormView,CreateView, DeleteView, UpdateView
-from .forms import AddUserForm
+from .forms import AddUserForm,AssignRoleForm
 from .models import Repository,Repo_role,Repo_user
 from django.contrib.auth.models import User
-from task.models import Task,Task_assignament
+from task.models import Task,Task_assignment
 from django.shortcuts import redirect
 from django.urls import reverse_lazy,reverse
 
@@ -39,6 +40,20 @@ class RepositoryDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         # Add in a QuerySet of all the tasks
         context["Repo_tasks"] = Task.objects.all().filter(repo_id = self.kwargs["pk"])
+        return context
+    
+#repo personal profile
+class PersonalProfileView(DetailView):
+    model = User
+    template_name = "repository/repo_personal_profile.html"
+    context_object_name = "Repo"
+    
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Add in a QuerySet of all the tasks
+        context["User_roles"] = Repo_user.objects.all().filter(username = self.request.user)
+        context["User_tasks"] = Task_assignment.objects.all().filter(username = self.request.user)
         return context
     
 
@@ -112,6 +127,28 @@ class DeleteRoleView(DeleteView):
     
     def get_object(self):
         return Repo_role.objects.get(role_id=self.kwargs["role_id"])
+    
+class AssignRoleView(CreateView):
+    form_class = AssignRoleForm
+    template_name = "repository/role/role_assign.html"
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["repo_id"] = self.kwargs["pk"]
+        return kwargs
+    
+    def get_success_url(self):
+        return reverse("role_list", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
+
+class RemoveAssignRoleView(DeleteView):
+    model = Repo_user
+    template_name = "repository/role/role_remove_assign.html"
+
+    def get_success_url(self):
+        return reverse("role_list", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
+    
+    def get_object(self):
+        return Repo_user.objects.all().filter(username__username=self.kwargs["user"]).get(role_id=self.kwargs["role_id"])
 
 
 #repo_users views
@@ -150,25 +187,6 @@ class AddUserView(CreateView):
     def get_success_url(self):
         return reverse("repo_user_list", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
 
-class AssignRoleToUserView(UpdateView):
-    model = Repo_user
-    fields = ["role_name",
-              "can_change_status_if_task_assigned",
-              "can_manage_task",
-              "can_assign_task",
-              "can_add_people",
-              "can_manage_roles",
-              "can_cancel_repo",
-              "role_priority"]
-    template_name = "repository/repo_user/repo_user_assign_role.html"
-    context_object_name = "role"
-    
-    def get_success_url(self):
-        return reverse("repo_user_list", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
-    
-    def get_object(self):
-        return Repo_role.objects.get(role_name=self.kwargs["role_name"])
-
 class RemoveUserView(DeleteView):
     model = Repo_user
     template_name = "repository/repo_user/repo_user_remove.html"
@@ -176,10 +194,5 @@ class RemoveUserView(DeleteView):
     def get_success_url(self):
         return reverse("repo_user_list", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["repo_user"] = User.objects.get(username=self.kwargs["username"])
-        return context
-    
     def get_object(self):
-        return Repo_user.objects.all().filter(role_id__repo_id=self.kwargs["pk"]).filter(username__username=self.kwargs["username"])
+        return Repo_user.objects.all().filter(role_id__repo_id=self.kwargs["pk"]).filter(username__username=self.kwargs["user"])

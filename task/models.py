@@ -29,9 +29,14 @@ class Task(models.Model):
     class Meta:
         db_table = 'tms_task'
         
-class Task_assignament(models.Model):
-    task_id = models.ForeignKey("Task",on_delete=models.CASCADE)
+class Task_assignment(models.Model):
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    task_id = models.ForeignKey("Task",on_delete=models.CASCADE)
     
     class Meta:
         db_table = 'tms_task_assignament'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['username', 'task_id'], name='unique_un_task_constraint'
+            )
+        ]

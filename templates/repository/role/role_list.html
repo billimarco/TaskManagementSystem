@@ -10,7 +10,7 @@
 <div>
     <p>
         <a class="btn btn-primary" href="{% url 'role_new' repo.repo_id repo.name %}" role="button">Create Role</a>
-        <a class="btn btn-primary" href="" role="button">Assign Role</a>
+        <a class="btn btn-primary" href="{% url 'role_assign' repo.repo_id repo.name %}" role="button">Assign Role</a>
     </p>
     <!-- Role List -->
     {% for role in role_list %}
@@ -25,7 +25,7 @@
                 {% if repo_users %}
                 {% for user_with_role in repo_users %}
                 {% if user_with_role.role_id.role_id == role.role_id %}
-                <p>{{ user_with_role.username.username }}</p>
+                <p>{{ user_with_role.username.username }} <a class="btn btn-danger" href="{% url 'role_remove_assign' repo.repo_id repo.name role.role_id role.role_name user_with_role.username%}" role="button">Remove</a> </p>
                 {% endif %}
                 {% endfor %} 
                 {% endif %}

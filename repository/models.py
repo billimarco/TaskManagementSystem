@@ -32,4 +32,9 @@ class Repo_user(models.Model):
     
     class Meta:
         db_table = 'tms_repo_user'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['username', 'role_id'], name='unique_un_role_constraint'
+            )
+        ]
         
