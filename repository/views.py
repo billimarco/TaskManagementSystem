@@ -8,7 +8,7 @@ from django.views.generic import ListView, DetailView  # new
 from django.views.generic.edit import FormView,CreateView, DeleteView, UpdateView
 from .forms import AddUserForm,AssignRoleForm
 from .models import Repository,Repo_role,Repo_user
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User,Group,Permission
 from task.models import Task,Task_assignment
 from django.shortcuts import redirect
 from django.urls import reverse_lazy,reverse
@@ -30,7 +30,7 @@ class RepositoryListView(ListView):
             # return redirect("signup")
         return super().get(request, *args, **kwargs)
     
-class CreateRepositoryView(CreateView):
+class CreateRepositoryView(CreateView):#TODO set the permissions
     model = Repository
     fields = ["name"]
     template_name = "repository/repository_new.html"
@@ -44,28 +44,23 @@ class CreateRepositoryView(CreateView):
         form.instance.created_by = user if user else None
         self.object = form.save()
         
+        repo_name = self.object.name
+        
         new_superadmin_role = Repo_role(
-            role_name="Superadmin",
-            can_change_status_if_task_assigned=True,
-            can_manage_task=True,
-            can_manage_users=True,
-            can_manage_roles=True,
-            can_cancel_repo=True,
-            role_priority=0,
-            repo_id=self.object
-        )
-        new_user_role = Repo_role(
-            role_name="User",
-            can_change_status_if_task_assigned=True,
-            can_manage_task=False,
-            can_manage_users=False,
-            can_manage_roles=False,
-            can_cancel_repo=False,
-            role_priority=99,
+            name=f"Superadmin#{repo_name}",           
             repo_id=self.object
         )
         new_superadmin_role.save()
+        permissions = Permission.objects.filter(codename__in=['permission1_codename', 'permission2_codename'])
+        new_superadmin_role.permissions.set(permissions)
+        
+        new_user_role = Repo_role(
+            name=f"User#{repo_name}",
+            repo_id=self.object
+        )
         new_user_role.save()
+        permissions = Permission.objects.filter(codename__in=['permission1_codename', 'permission2_codename'])
+        new_user_role.permissions.set(permissions)
 
         new_repo_user = Repo_user(username=user, role_id=new_superadmin_role)
         new_repo_user.save()
@@ -96,7 +91,6 @@ class DeleteRepositoryView(DeleteView):
 class PersonalProfileView(DetailView):
     model = User
     template_name = "repository/repository_personal_profile.html"
-    context_object_name = "Repo"
     
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -132,13 +126,8 @@ class RolesListView(ListView):
 
 class CreateRoleView(CreateView):
     model = Repo_role
-    fields = ["role_name",
-              "can_change_status_if_task_assigned",
-              "can_manage_task",
-              "can_manage_users",
-              "can_manage_roles",
-              "can_cancel_repo",
-              "role_priority"]
+    fields = ["name",
+              "permissions"]
     template_name = "repository/role/role_new.html"
     context_object_name = "role"
     
@@ -146,18 +135,15 @@ class CreateRoleView(CreateView):
         return reverse("role_list", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
     
     def form_valid(self, form):
+        repo_name = self.kwargs["name"]
         form.instance.repo_id = Repository.objects.get(repo_id=self.kwargs["pk"])
+        form.instance.name = f"{form.instance.name}#{repo_name}"
         return super(CreateRoleView, self).form_valid(form)
 
 class ModifyRoleView(UpdateView):
     model = Repo_role
-    fields = ["role_name",
-              "can_change_status_if_task_assigned",
-              "can_manage_task",
-              "can_manage_users",
-              "can_manage_roles",
-              "can_cancel_repo",
-              "role_priority"]
+    fields = ["name",
+              "permissions"]
     template_name = "repository/role/role_edit.html"
     context_object_name = "role"
     
@@ -166,6 +152,11 @@ class ModifyRoleView(UpdateView):
     
     def get_object(self):
         return Repo_role.objects.get(role_id=self.kwargs["role_id"])
+    
+    def form_valid(self, form):
+        repo_name = self.kwargs["name"]
+        form.instance.name = f"{form.instance.name}#{repo_name}"
+        return super().form_valid(form)
 
 class DeleteRoleView(DeleteView):
     model = Repo_role
