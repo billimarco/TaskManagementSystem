@@ -23,7 +23,7 @@
       <span>Created {{ task.task_id.created }} by {{ task.task_id.created_by }}</span>
     </div>
     <div class="text-end">
-      <a class="btn btn-primary" href="" role="button">History</a>
+      <a class="btn btn-primary" href="{% url 'task_history' task.task_id.repo_id.repo_id task.task_id.repo_id.name task.task_id.task_id %}" role="button">History</a>
       <a class="btn btn-warning" href="{% url 'task_edit' task.task_id.repo_id.repo_id task.task_id.repo_id.name task.task_id.task_id %}" role="button">Modify</a>
       <a class="btn btn-warning" href="{% url 'task_status' task.task_id.repo_id.repo_id task.task_id.repo_id.name task.task_id.task_id %}" role="button">Change Status</a>
       <a class="btn btn-warning" href="{% url 'task_delete' task.task_id.repo_id.repo_id task.task_id.repo_id.name task.task_id.task_id %}" role="button">Delete</a>

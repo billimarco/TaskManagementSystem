@@ -46,7 +46,7 @@
   </div>
   <br />
   {% endfor %}
-  <p>Back to <a href="{% url 'repository_detail' view.kwargs.pk view.kwargs.name%}">{{ view.kwargs.name }}</a></p>
+  <p>Back to <a href="{% url 'repo_detail' view.kwargs.pk view.kwargs.name%}">{{ view.kwargs.name }}</a></p>
 </div>
 {% endif %}
 {% endblock content %}

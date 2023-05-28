@@ -8,7 +8,7 @@ from django.views.generic import ListView, DetailView  # new
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from .forms import AssignTaskForm
 from repository.models import Repository,Repo_role
-from .models import Task,Task_assignment
+from .models import Task,Task_assignment,Task_status_history
 from django.shortcuts import redirect
 from django.urls import reverse_lazy,reverse
 
@@ -36,6 +36,8 @@ class TaskDetailView(DetailView):
     def get_object(self):
         return Task.objects.get(task_id=self.kwargs["task_pk"])
     
+#Repo_tasks feature
+    
 class CreateTaskView(CreateView):
     model = Task
     fields = ["title",
@@ -45,7 +47,7 @@ class CreateTaskView(CreateView):
     context_object_name = "task"
     
     def get_success_url(self):
-        return reverse("repository_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
+        return reverse("repo_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
     
     def form_valid(self, form):
         user = self.request.user
@@ -53,44 +55,6 @@ class CreateTaskView(CreateView):
         form.instance.created_by = user if user else None
         form.instance.repo_id = Repository.objects.get(repo_id=self.kwargs["pk"])
         return super(CreateTaskView, self).form_valid(form)
-
-class ModifyTaskView(UpdateView):
-    model = Task
-    fields = ["title",
-              "description",
-              "status",
-              "priority"]
-    template_name = "repository/task/task_edit.html"
-    context_object_name = "task"
-    
-    def get_success_url(self):
-        return reverse("repository_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
-    
-    def get_object(self):
-        return Task.objects.get(task_id=self.kwargs["task_pk"])
-
-class DeleteTaskView(DeleteView):
-    model = Task
-    template_name = "repository/task/task_delete.html"
-    context_object_name = "task"
-    
-    def get_success_url(self):
-        return reverse("repository_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
-    
-    def get_object(self):
-        return Task.objects.get(task_id=self.kwargs["task_pk"])
-    
-class ModifyTaskStatusView(UpdateView):
-    model = Task
-    fields = ["status"]
-    template_name = "repository/task/task_edit.html"
-    context_object_name = "task"
-    
-    def get_success_url(self):
-        return reverse("repository_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
-    
-    def get_object(self):
-        return Task.objects.get(task_id=self.kwargs["task_pk"])
 
 class AssignTaskView(CreateView):
     form_class = AssignTaskForm
@@ -102,4 +66,56 @@ class AssignTaskView(CreateView):
         return kwargs
     
     def get_success_url(self):
-        return reverse("repository_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
+        return reverse("repo_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
+    
+class ModifyTaskView(UpdateView):
+    model = Task
+    fields = ["title",
+              "description",
+              "status",
+              "priority"]
+    template_name = "repository/task/task_edit.html"
+    context_object_name = "task"
+    
+    def get_success_url(self):
+        return reverse("repo_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
+    
+    def get_object(self):
+        return Task.objects.get(task_id=self.kwargs["task_pk"])
+    
+class ModifyTaskStatusView(UpdateView):
+    model = Task
+    fields = ["status"]
+    template_name = "repository/task/task_edit.html"
+    context_object_name = "task"
+    
+    def get_success_url(self):
+        return reverse("repo_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
+    
+    def get_object(self):
+        return Task.objects.get(task_id=self.kwargs["task_pk"])
+    
+class DeleteTaskView(DeleteView):
+    model = Task
+    template_name = "repository/task/task_delete.html"
+    context_object_name = "task"
+    
+    def get_success_url(self):
+        return reverse("repo_detail", kwargs={"pk": self.kwargs["pk"] , "name": self.kwargs["name"]})
+    
+    def get_object(self):
+        return Task.objects.get(task_id=self.kwargs["task_pk"])
+    
+class HistoryTaskView(ListView):
+    model = Task_status_history
+    template_name = "repository/task/task_history.html"
+    context_object_name = "history_list"
+
+    def get_queryset(self):
+        task_pk = self.kwargs["task_pk"]
+        return Task_status_history.objects.filter(task_id=task_pk).order_by("-created")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["task"] = Task.objects.get(task_id = self.kwargs["task_pk"])
+        return context

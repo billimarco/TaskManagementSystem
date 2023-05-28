@@ -36,7 +36,7 @@
     </div>
     <br />
     {% endfor %}
-    <p>Back to <a href="{% url 'repository_detail' repo.repo_id repo.name%}">{{ repo.name }}</a></p>
+    <p>Back to <a href="{% url 'repo_detail' repo.repo_id repo.name%}">{{ repo.name }}</a></p>
 </div>
 {% endif %}
 {% endblock content %}

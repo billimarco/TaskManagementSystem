@@ -12,7 +12,7 @@
     <a class="btn btn-primary" href="{% url 'task_assign' repo.repo_id repo.name %}" role="button">Assign Task</a>
     <a class="btn btn-primary" href="{% url 'repo_user_list' repo.repo_id repo.name %}" role="button">Users Manager</a>
     <a class="btn btn-primary" href="{% url 'role_list' repo.repo_id repo.name %}" role="button">Roles Manager</a>
-    <a class="btn btn-primary" href="" role="button">Cancel Repo</a>
+    <a class="btn btn-primary" href="{% url 'repo_delete' repo.repo_id repo.name %}" role="button">Cancel Repo</a>
   </p>
 
   <!-- Tasks List -->
@@ -31,8 +31,12 @@
         {{ task.description }}
       </div>
       <div class="text-muted">
-        assigned to:
-
+        assigned to:<br>
+        {% for assigned_task in Repo_tasks_assignment %}
+          {% if assigned_task.task_id.task_id == task.task_id %}
+            {{ assigned_task.username }}<br>
+          {% endif %}
+        {% endfor %}
       </div>
     </div>
     <div class="d-inline-flex card-footer text-center text-muted align-items-center justify-content-between">
@@ -40,7 +44,7 @@
         <span>Created {{ task.created }} by {{ task.created_by }}</span>
       </div>
       <div class="text-end">
-        <a class="btn btn-primary" href="" role="button">History</a>
+        <a class="btn btn-primary" href="{% url 'task_history' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">History</a>
         <a class="btn btn-warning" href="{% url 'task_edit' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">Modify</a>
         <a class="btn btn-warning" href="{% url 'task_status' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">Change Status</a>
         <a class="btn btn-warning" href="{% url 'task_delete' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">Delete</a>
@@ -49,7 +53,7 @@
   </div>
   <br />
   {% endfor %}
-  <p>Back to <a href="{% url 'repository_list' %}">Repository List</a>.</p>
+  <p>Back to <a href="{% url 'repo_list' %}">Repository List</a>.</p>
 </div>
 {% endif %}
 {% endblock content %}

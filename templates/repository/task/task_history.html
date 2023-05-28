@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Task History{% endblock title %}
+
+{% block content %}
+  <h1>{{ task.title }} Task History</h1>
+
+  {% if history_list %}
+    <ul>
+      {% for history in history_list %}
+        <li>
+          <p>Status: {{ history.get_status_display }}</p>
+          <p>Created: {{ history.created }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No history available for this task.</p>
+  {% endif %}
+  <br><br>
+  <p>Back to <a href="{% url 'repo_detail' view.kwargs.pk view.kwargs.name%}">{{ view.kwargs.name }}</a></p>
+{% endblock content %}

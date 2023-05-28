@@ -17,7 +17,7 @@ from django.urls import reverse_lazy,reverse
 
 class RepositoryListView(ListView):
     model = Repository
-    template_name = "repository/list_repository.html"
+    template_name = "repository/repository_list.html"
     context_object_name = "repo_list"
     
     def get_queryset(self):
@@ -30,6 +30,48 @@ class RepositoryListView(ListView):
             # return redirect("signup")
         return super().get(request, *args, **kwargs)
     
+class CreateRepositoryView(CreateView):
+    model = Repository
+    fields = ["name"]
+    template_name = "repository/repository_new.html"
+    context_object_name = "repository"
+    
+    def get_success_url(self):
+        return reverse("repo_detail", kwargs={"pk": self.object.repo_id , "name": self.object.name})
+    
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.created_by = user if user else None
+        self.object = form.save()
+        
+        new_superadmin_role = Repo_role(
+            role_name="Superadmin",
+            can_change_status_if_task_assigned=True,
+            can_manage_task=True,
+            can_manage_users=True,
+            can_manage_roles=True,
+            can_cancel_repo=True,
+            role_priority=0,
+            repo_id=self.object
+        )
+        new_user_role = Repo_role(
+            role_name="User",
+            can_change_status_if_task_assigned=True,
+            can_manage_task=False,
+            can_manage_users=False,
+            can_manage_roles=False,
+            can_cancel_repo=False,
+            role_priority=99,
+            repo_id=self.object
+        )
+        new_superadmin_role.save()
+        new_user_role.save()
+
+        new_repo_user = Repo_user(username=user, role_id=new_superadmin_role)
+        new_repo_user.save()
+        
+        return super(CreateRepositoryView, self).form_valid(form)
+    
 class RepositoryDetailView(DetailView):
     model = Repository
     template_name = "repository/repository_detail.html"
@@ -40,12 +82,20 @@ class RepositoryDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         # Add in a QuerySet of all the tasks
         context["Repo_tasks"] = Task.objects.all().filter(repo_id = self.kwargs["pk"])
+        context["Repo_tasks_assignment"] = Task_assignment.objects.all().filter(task_id__repo_id = self.kwargs["pk"])
         return context
+    
+class DeleteRepositoryView(DeleteView):
+    model = Repository
+    template_name = 'repository/repository_delete.html'
+
+    def get_success_url(self):
+        return reverse('repo_list')
     
 #repo personal profile
 class PersonalProfileView(DetailView):
     model = User
-    template_name = "repository/repo_personal_profile.html"
+    template_name = "repository/repository_personal_profile.html"
     context_object_name = "Repo"
     
     def get_context_data(self, **kwargs):
