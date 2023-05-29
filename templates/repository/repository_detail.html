@@ -3,51 +3,51 @@
 {% block content %}
 {% if user.is_authenticated %}
 <div class="repository-entry">
-  <h2>{{ repo.name }}</h2>
+  <h2>{{ repository.name }}</h2>
 </div>
 <div>
   <p>
-    <a class="btn btn-primary" href="{% url 'repo_personal_profile' repo.repo_id repo.name user.get_username%}" role="button">Your repo profile</a>
-    <a class="btn btn-primary" href="{% url 'task_new' repo.repo_id repo.name %}" role="button">Create Task</a>
-    <a class="btn btn-primary" href="{% url 'task_assign' repo.repo_id repo.name %}" role="button">Assign Task</a>
-    <a class="btn btn-primary" href="{% url 'repo_user_list' repo.repo_id repo.name %}" role="button">Users Manager</a>
-    <a class="btn btn-primary" href="{% url 'role_list' repo.repo_id repo.name %}" role="button">Roles Manager</a>
-    <a class="btn btn-primary" href="{% url 'repo_delete' repo.repo_id repo.name %}" role="button">Cancel Repo</a>
+    <a class="btn btn-primary" href="{% url 'repo_personal_profile' repository.repo_id repository.name user.get_username%}" role="button">Your repo profile</a>
+    <a class="btn btn-primary" href="{% url 'task_new' repository.repo_id repository.name %}" role="button">Create Task</a>
+    <a class="btn btn-primary" href="{% url 'repo_user_list' repository.repo_id repository.name %}" role="button">Users Manager</a>
+    <a class="btn btn-primary" href="{% url 'role_list' repository.repo_id repository.name %}" role="button">Roles Manager</a>
+    <a class="btn btn-primary" href="{% url 'repo_delete' repository.repo_id repository.name %}" role="button">Cancel Repo</a>
   </p>
 
   <!-- Tasks List -->
-  {% for task in Repo_tasks %}
+  {% for rt in repo_tasks %}
   <div class="card">
     <div class="d-inline-flex card-header align-items-center justify-content-between">
       <div class="text-start">
-        <span class="fw-bold"> {{ task.title }} </span>
+        <span class="fw-bold"> {{ rt.title }} </span>
       </div>
       <div class="text-end">
-        <span>{{ task.get_priority_display }} | {{ task.get_status_display }}</span>
+        <span>{{ rt.get_priority_display }} | {{ rt.get_status_display }}</span>
       </div>
     </div>
     <div class="card-body">
       <div>
-        {{ task.description }}
+        {{ rt.description }}
       </div>
       <div class="text-muted">
         assigned to:<br>
-        {% for assigned_task in Repo_tasks_assignment %}
-          {% if assigned_task.task_id.task_id == task.task_id %}
-            {{ assigned_task.username }}<br>
+        {% for at in repo_tasks_assignment %}
+          {% if at.task.task_id == rt.task_id %}
+            {{ at.ass_user.username }} <a class="btn btn-danger" href="{% url 'task_remove_assign' view.kwargs.repo_id view.kwargs.repo_name rt.task_id rt.title at.ass_user.username%}" role="button">Remove</a><br>
           {% endif %}
         {% endfor %}
       </div>
     </div>
     <div class="d-inline-flex card-footer text-center text-muted align-items-center justify-content-between">
       <div class="text-start">
-        <span>Created {{ task.created }} by {{ task.created_by }}</span>
+        <span>Created {{ rt.created }} by {{ rt.created_by }}</span>
       </div>
       <div class="text-end">
-        <a class="btn btn-primary" href="{% url 'task_history' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">History</a>
-        <a class="btn btn-warning" href="{% url 'task_edit' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">Modify</a>
-        <a class="btn btn-warning" href="{% url 'task_status' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">Change Status</a>
-        <a class="btn btn-warning" href="{% url 'task_delete' task.repo_id.repo_id task.repo_id.name task.task_id %}" role="button">Delete</a>
+        <a class="btn btn-primary" href="{% url 'task_history' rt.repo.repo_id rt.repo.name rt.task_id %}" role="button">History</a>
+        <a class="btn btn-primary" href="{% url 'task_assign' rt.repo.repo_id rt.repo.name rt.task_id%}" role="button">Assign</a>
+        <a class="btn btn-warning" href="{% url 'task_edit' rt.repo.repo_id rt.repo.name rt.task_id %}" role="button">Modify</a>
+        <a class="btn btn-warning" href="{% url 'task_status' rt.repo.repo_id rt.repo.name rt.task_id %}" role="button">Change Status</a>
+        <a class="btn btn-warning" href="{% url 'task_delete' rt.repo.repo_id rt.repo.name rt.task_id %}" role="button">Delete</a>
       </div>
     </div>
   </div>

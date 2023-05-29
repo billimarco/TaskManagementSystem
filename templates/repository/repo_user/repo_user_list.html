@@ -16,22 +16,22 @@
     <div class="card">
         <div class="d-inline-flex card-header align-items-center justify-content-between">
             <div class="text-start">
-                <span class="fw-bold"> {{ repo_user.username__username }} </span>
+                <span class="fw-bold"> {{ repo_user.username }} </span>
             </div>
         </div>
         <div class="card-body">
             <span class="fw-bold">
                 {% if users_role_list %}
                 {% for role_user in users_role_list %}
-                {% if role_user.username.username == repo_user.username__username %}
-                <p>{{ role_user.role_id.role_name }}</p>
+                {% if role_user.rp_user.username == repo_user.username %}
+                <p>{{ role_user.role.role_name }}</p>
                 {% endif %}
                 {% endfor %}
                 {% endif %}
             </span>
         </div>
         <div class="card-footer text-center text-muted">
-            <a class="btn btn-primary" href="{% url 'repo_user_remove' repo.repo_id repo.name repo_user.username__username%}" role="button">Delete</a>
+            <a class="btn btn-primary" href="{% url 'repo_user_remove' repo.repo_id repo.name repo_user.username%}" role="button">Delete</a>
         </div>
     </div>
     <br />

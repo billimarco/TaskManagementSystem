@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Delete repo user</h1>
 <form action="" method="post">{% csrf_token %}
-  <p>Are you sure you want to remove {{ view.kwargs.user }} from the repository {{ view.kwargs.name }}?</p>
+  <p>Are you sure you want to remove {{ view.kwargs.username }} from the repository {{ view.kwargs.repo_name }}?</p>
   <button class="btn btn-danger ml-2" type="submit">Confirm</button>
 </form>
 {% endblock content %}

@@ -4,7 +4,7 @@
 {% block content %}
 <h1>Remove assign role</h1>
 <form action="" method="post">{% csrf_token %}
-  <p>are you sure to remove the {{ view.kwargs.role_name }} role from the user {{ view.kwargs.user }}?</p>
+  <p>are you sure to remove the {{ view.kwargs.role_name }} role from the user {{ view.kwargs.username }}?</p>
   <button class="btn btn-danger ml-2" type="submit">Confirm</button>
 </form>
 

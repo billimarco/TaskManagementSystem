@@ -10,7 +10,7 @@
       {% for history in history_list %}
         <li>
           <p>Status: {{ history.get_status_display }}</p>
-          <p>Created: {{ history.created }}</p>
+          <p>Modified: {{ history.created }}</p>
         </li>
       {% endfor %}
     </ul>
@@ -18,5 +18,5 @@
     <p>No history available for this task.</p>
   {% endif %}
   <br><br>
-  <p>Back to <a href="{% url 'repo_detail' view.kwargs.pk view.kwargs.name%}">{{ view.kwargs.name }}</a></p>
+  <p>Back to <a href="{% url 'repo_detail' view.kwargs.repo_id view.kwargs.repo_name%}">{{ view.kwargs.repo_name }}</a></p>
 {% endblock content %}

@@ -20,6 +20,10 @@ class Repository(models.Model):
         if last_modified_task:
             self.last_modified = last_modified_task.last_modified
             super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.name
+        
         
 class Repo_role(models.Model):
     role_id = models.AutoField(primary_key=True)
@@ -29,21 +33,26 @@ class Repo_role(models.Model):
     can_manage_users = models.BooleanField(default=False)
     can_manage_roles = models.BooleanField(default=False)
     can_cancel_repo = models.BooleanField(default=False)
-    role_priority = models.IntegerField(validators=[MaxValueValidator(99)])
-    repo_id = models.ForeignKey("Repository",on_delete=models.CASCADE)
+    repo = models.ForeignKey("Repository",on_delete=models.CASCADE)
     
     class Meta:
         db_table = 'tms_repo_role'
+    
+    def __str__(self):
+        return f"{self.role_name} - {self.repo.name}"
         
 class Repo_user(models.Model):
-    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
-    role_id = models.ForeignKey("Repo_role",on_delete=models.CASCADE)
+    rp_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    role = models.ForeignKey("Repo_role",on_delete=models.CASCADE)
     
     class Meta:
         db_table = 'tms_repo_user'
         constraints = [
             models.UniqueConstraint(
-                fields=['username', 'role_id'], name='unique_un_role_constraint'
+                fields=['rp_user', 'role'], name='unique_un_role_constraint'
             )
         ]
+    
+    def __str__(self):
+        return f"{self.rp_user.username} - {self.role.role_name}"
         

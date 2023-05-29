@@ -26,7 +26,7 @@ class Task(models.Model):
     status = models.CharField(max_length=1,choices=Task_status.choices,default=Task_status.NEW)
     priority = models.CharField(max_length=1,choices=Task_priority.choices,default=Task_priority.DEFERABLE)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
-    repo_id = models.ForeignKey("repository.Repository",on_delete=models.CASCADE)
+    repo = models.ForeignKey("repository.Repository",on_delete=models.CASCADE)
     
     class Meta:
         db_table = 'tms_task'
@@ -52,6 +52,9 @@ class Task(models.Model):
         if self.pk:
             return Task.objects.filter(pk=self.pk).values_list('status', flat=True).first()
         return None
+    
+    def __str__(self):
+        return f"{self.task_id} - {self.title} - {self.repo.name}"
 
 @receiver(pre_save, sender=Task)
 def update_last_modified(sender, instance, **kwargs):
@@ -59,30 +62,33 @@ def update_last_modified(sender, instance, **kwargs):
         original_task = Task.objects.get(pk=instance.pk)
         if original_task.last_modified != instance.last_modified:
             # The last_modified attribute has changed
-            repository = instance.repo_id
+            repository = instance.repo
             repository.last_modified = instance.last_modified
             repository.save()
             
 @receiver(post_save, sender=Task)
 def update_repository_last_modified(sender, instance, **kwargs):
-    repository = instance.repo_id
+    repository = instance.repo
     if repository:
-        last_modified_task = Task.objects.filter(repo_id=repository).order_by('-last_modified').first()
+        last_modified_task = Task.objects.filter(repo=repository).order_by('-last_modified').first()
         if last_modified_task:
             repository.last_modified = last_modified_task.last_modified
             repository.save()
         
 class Task_assignment(models.Model):
-    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
-    task_id = models.ForeignKey("Task",on_delete=models.CASCADE)
+    ass_user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    task = models.ForeignKey("Task",on_delete=models.CASCADE)
     
     class Meta:
         db_table = 'tms_task_assignament'
         constraints = [
             models.UniqueConstraint(
-                fields=['username', 'task_id'], name='unique_un_task_constraint'
+                fields=['ass_user', 'task'], name='unique_un_task_constraint'
             )
         ]
+        
+    def __str__(self):
+        return f"{self.task.task_id} - {self.ass_user.username}"
 
 class Task_status_history(models.Model):
     task = models.ForeignKey("Task", on_delete=models.CASCADE)
@@ -91,3 +97,6 @@ class Task_status_history(models.Model):
 
     class Meta:
         db_table = 'tms_task_status_history'
+        
+    def __str__(self):
+        return f"{self.task.task_id} - {self.created}"
