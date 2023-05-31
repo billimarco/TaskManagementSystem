@@ -45,7 +45,7 @@
                     {% for uwr in repo_users %}
                     {% if uwr.role.role_id == role.role_id %}
                     <a class="text-white text-decoration-none" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name uwr.rp_user.username%}">{{ uwr.rp_user.username }}</a>
-                    <a class="btn btn-danger btn-sm fw-bold" style="--bs-btn-padding-y: .0rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" href="{% url 'role_remove_assign' view.kwargs.repo_id view.kwargs.repo_name role.role_id role.role_name uwr.rp_user.username%}" role="button">-</a>
+                    <a class="btn btn-danger btn-sm fw-bold" style="--bs-btn-padding-y: .0rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" href="{% url 'role_remove_assign' view.kwargs.repo_id view.kwargs.repo_name role.role_id role.role_name uwr.rp_user.username%}" role="button">-</a><br>
                     {% endif %}
                     {% endfor %} 
                     {% endif %}

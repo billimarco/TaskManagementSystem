@@ -1,18 +1,14 @@
-from typing import Any, Dict, Optional
-from django.db import models
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpRequest
 from django.views import View
 from django.views.generic import ListView, DetailView  # new
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from .forms import AssignTaskForm
-from repository.models import Repository,Repo_role
 from .models import Task,Task_assignment,Task_status_history
+from repository.mixins.permissions import RepoRolePermissionRequiredMixin
+from repository.models import Repository,Repo_role
 from django.shortcuts import redirect
 from django.urls import reverse_lazy,reverse
-from django.db import IntegrityError
-from django.http import HttpResponseBadRequest
 
     
 class AssignedTasksListView(ListView):
@@ -42,7 +38,7 @@ class TaskDetailView(DetailView):
     
 #Repo_tasks feature
     
-class CreateTaskView(CreateView):
+class CreateTaskView(RepoRolePermissionRequiredMixin,CreateView):
     model = Task
     fields = ["title",
               "description",
@@ -50,6 +46,7 @@ class CreateTaskView(CreateView):
     template_name = "repository/task/task_new.html"
     context_object_name = "task"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_tasks"]
     
     def get_success_url(self):
         return reverse("repo_detail", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
@@ -61,10 +58,11 @@ class CreateTaskView(CreateView):
         form.instance.repo = Repository.objects.get(repo_id=self.kwargs["repo_id"])
         return super(CreateTaskView, self).form_valid(form)
 
-class AssignTaskView(CreateView):
+class AssignTaskView(RepoRolePermissionRequiredMixin,CreateView):
     form_class = AssignTaskForm
     template_name = "repository/task/task_assign.html"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_tasks"]
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -78,8 +76,20 @@ class AssignTaskView(CreateView):
     def form_valid(self, form):
         form.instance.task = Task.objects.get(task_id=self.kwargs["task_id"])
         return super(AssignTaskView, self).form_valid(form)
+
+class RemoveAssignTaskView(RepoRolePermissionRequiredMixin,DeleteView):
+    model = Task_assignment
+    template_name = "repository/task/task_remove_assign.html"
+    pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_tasks"]
+
+    def get_success_url(self):
+        return reverse("repo_detail", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
     
-class ModifyTaskView(UpdateView):
+    def get_object(self):
+        return Task_assignment.objects.all().filter(ass_user__username=self.kwargs["username"]).get(task__task_id=self.kwargs["task_id"])
+    
+class ModifyTaskView(RepoRolePermissionRequiredMixin,UpdateView):
     model = Task
     fields = ["title",
               "description",
@@ -88,6 +98,7 @@ class ModifyTaskView(UpdateView):
     template_name = "repository/task/task_edit.html"
     context_object_name = "task"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_tasks"]
     
     def get_success_url(self):
         return reverse("repo_detail", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
@@ -95,12 +106,13 @@ class ModifyTaskView(UpdateView):
     def get_object(self):
         return Task.objects.get(task_id=self.kwargs["task_id"])
     
-class ModifyTaskStatusView(UpdateView):
+class ModifyTaskStatusView(RepoRolePermissionRequiredMixin,UpdateView):
     model = Task
     fields = ["status"]
     template_name = "repository/task/task_edit.html"
     context_object_name = "task"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_change_status_if_task_assigned"]
     
     def get_success_url(self):
         return reverse("repo_detail", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
@@ -108,11 +120,12 @@ class ModifyTaskStatusView(UpdateView):
     def get_object(self):
         return Task.objects.get(task_id=self.kwargs["task_id"])
     
-class DeleteTaskView(DeleteView):
+class DeleteTaskView(RepoRolePermissionRequiredMixin,DeleteView):
     model = Task
     template_name = "repository/task/task_delete.html"
     context_object_name = "task"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_tasks"]
     
     def get_success_url(self):
         return reverse("repo_detail", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
@@ -134,14 +147,3 @@ class HistoryTaskView(ListView):
         context = super().get_context_data(**kwargs)
         context["task"] = Task.objects.get(task_id = self.kwargs["task_id"])
         return context
-
-class RemoveAssignTaskView(DeleteView):
-    model = Task_assignment
-    template_name = "repository/task/task_remove_assign.html"
-    pk_url_kwarg = "repo_id"
-
-    def get_success_url(self):
-        return reverse("repo_detail", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
-    
-    def get_object(self):
-        return Task_assignment.objects.all().filter(ass_user__username=self.kwargs["username"]).get(task__task_id=self.kwargs["task_id"])

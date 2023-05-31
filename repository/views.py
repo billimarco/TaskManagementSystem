@@ -1,15 +1,12 @@
-from typing import Any, Optional
-from django.db import models
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpRequest
-from django.views import View
 from django.views.generic import ListView, DetailView  # new
-from django.views.generic.edit import FormView,CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from .mixins.permissions import RepoRolePermissionRequiredMixin
 from .forms import AddUserForm,AssignRoleForm
 from .models import Repository,Repo_role,Repo_user
-from django.contrib.auth.models import User
 from task.models import Task,Task_assignment
+from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.urls import reverse_lazy,reverse
 
@@ -49,7 +46,7 @@ class CreateRepositoryView(CreateView):
         new_superadmin_role = Repo_role(
             role_name="Superadmin",
             can_change_status_if_task_assigned=True,
-            can_manage_task=True,
+            can_manage_tasks=True,
             can_manage_users=True,
             can_manage_roles=True,
             can_cancel_repo=True,
@@ -58,7 +55,7 @@ class CreateRepositoryView(CreateView):
         new_user_role = Repo_role(
             role_name="User",
             can_change_status_if_task_assigned=True,
-            can_manage_task=False,
+            can_manage_tasks=False,
             can_manage_users=False,
             can_manage_roles=False,
             can_cancel_repo=False,
@@ -86,10 +83,11 @@ class RepositoryDetailView(DetailView):
         context["repo_tasks_assignment"] = Task_assignment.objects.all().filter(task__repo__repo_id = self.kwargs["repo_id"])
         return context
     
-class DeleteRepositoryView(DeleteView):
+class DeleteRepositoryView(RepoRolePermissionRequiredMixin,DeleteView):
     model = Repository
     template_name = 'repository/repository_delete.html'
     pk_url_kwarg = "repo_id"
+    required_permissions = ["can_cancel_repo"]
 
     def get_success_url(self):
         return reverse('repo_list')
@@ -114,11 +112,12 @@ class PersonalProfileView(DetailView):
 
 #roles views
     
-class RolesListView(ListView):
+class RolesListView(RepoRolePermissionRequiredMixin,ListView):
     model = Repo_role
     template_name = "repository/role/role_list.html"
     context_object_name = "role_list"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_roles"]
     
     def get_queryset(self):
         return Repo_role.objects.all().filter(repo__repo_id = self.kwargs["repo_id"])
@@ -136,17 +135,18 @@ class RolesListView(ListView):
             # return redirect("signup")
         return super().get(request, *args, **kwargs)
 
-class CreateRoleView(CreateView):
+class CreateRoleView(RepoRolePermissionRequiredMixin,CreateView):
     model = Repo_role
     fields = ["role_name",
               "can_change_status_if_task_assigned",
-              "can_manage_task",
+              "can_manage_tasks",
               "can_manage_users",
               "can_manage_roles",
               "can_cancel_repo"]
     template_name = "repository/role/role_new.html"
     context_object_name = "role"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_roles"]
     
     def get_success_url(self):
         return reverse("role_list", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
@@ -155,17 +155,18 @@ class CreateRoleView(CreateView):
         form.instance.repo = Repository.objects.get(repo_id=self.kwargs["repo_id"])
         return super(CreateRoleView, self).form_valid(form)
 
-class ModifyRoleView(UpdateView):
+class ModifyRoleView(RepoRolePermissionRequiredMixin,UpdateView):
     model = Repo_role
     fields = ["role_name",
               "can_change_status_if_task_assigned",
-              "can_manage_task",
+              "can_manage_tasks",
               "can_manage_users",
               "can_manage_roles",
               "can_cancel_repo"]
     template_name = "repository/role/role_edit.html"
     context_object_name = "role"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_roles"]
     
     def get_success_url(self):
         return reverse("role_list", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
@@ -173,11 +174,12 @@ class ModifyRoleView(UpdateView):
     def get_object(self):
         return Repo_role.objects.get(role_id=self.kwargs["role_id"])
 
-class DeleteRoleView(DeleteView):
+class DeleteRoleView(RepoRolePermissionRequiredMixin,DeleteView):
     model = Repo_role
     template_name = "repository/role/role_delete.html"
     context_object_name = "role"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_roles"]
     
     def get_success_url(self):
         return reverse("role_list", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
@@ -185,10 +187,11 @@ class DeleteRoleView(DeleteView):
     def get_object(self):
         return Repo_role.objects.get(role_id=self.kwargs["role_id"])
     
-class AssignRoleView(CreateView):
+class AssignRoleView(RepoRolePermissionRequiredMixin,CreateView):
     form_class = AssignRoleForm
     template_name = "repository/role/role_assign.html"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_roles"]
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -203,10 +206,11 @@ class AssignRoleView(CreateView):
         form.instance.role = Repo_role.objects.get(role_id=self.kwargs["role_id"])
         return super(AssignRoleView, self).form_valid(form)
 
-class RemoveAssignRoleView(DeleteView):
+class RemoveAssignRoleView(RepoRolePermissionRequiredMixin,DeleteView):
     model = Repo_user
     template_name = "repository/role/role_remove_assign.html"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_roles"]
 
     def get_success_url(self):
         return reverse("role_list", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
@@ -218,11 +222,12 @@ class RemoveAssignRoleView(DeleteView):
 #repo_users views
 
    
-class UsersListView(ListView):
+class UsersListView(RepoRolePermissionRequiredMixin,ListView):
     model = Repo_user
     template_name = "repository/repo_user/repo_user_list.html"
     context_object_name = "repo_user_list"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_users"]
     
     def get_queryset(self):
         return User.objects.all().filter(username__in=Repo_user.objects.all().filter(role__repo__repo_id = self.kwargs["repo_id"]).values_list("rp_user__username", flat=True))
@@ -240,10 +245,11 @@ class UsersListView(ListView):
             # return redirect("signup")
         return super().get(request, *args, **kwargs)
 
-class AddUserView(CreateView):
+class AddUserView(RepoRolePermissionRequiredMixin,CreateView):
     form_class = AddUserForm
     template_name = "repository/repo_user/repo_user_add.html"
     pk_url_kwarg = "repo_id"
+    required_permissions=["can_manage_users"]
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -253,9 +259,10 @@ class AddUserView(CreateView):
     def get_success_url(self):
         return reverse("repo_user_list", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
 
-class RemoveUserView(DeleteView):
+class RemoveUserView(RepoRolePermissionRequiredMixin,DeleteView):
     model = Repo_user
     template_name = "repository/repo_user/repo_user_remove.html"
+    required_permissions=["can_manage_users"]
     
     def get_success_url(self):
         return reverse("repo_user_list", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})

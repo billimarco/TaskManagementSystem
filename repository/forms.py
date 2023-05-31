@@ -25,4 +25,4 @@ class AssignRoleForm(forms.ModelForm):
        role_id = kwargs.pop("role_id", None)
        super().__init__(*args, **kwargs)
        usersInRepo = User.objects.all().filter(username__in = Repo_user.objects.all().filter(role__repo_id = repo_id).values("rp_user__username"))
-       self.fields["rp_user"].queryset = usersInRepo.exclude(username__in = Repo_role.objects.all().filter(role_id = role_id).values("repo_user__rp_user__username"))
+       self.fields["rp_user"].queryset = usersInRepo.exclude(username__in = Repo_user.objects.all().filter(role__role_id = role_id).values("rp_user__username"))
