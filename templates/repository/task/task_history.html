@@ -3,20 +3,22 @@
 {% block title %}Task History{% endblock title %}
 
 {% block content %}
-  <h1>{{ task.title }} Task History</h1>
+<div class="row align-items-center justify-content-center">
+    <div class="col-6 bg-dark p-5 border">
+        <h1 class="text-warning text-uppercase text-center mb-5">{{ task.title }} Task History</h1>
 
-  {% if history_list %}
-    <ul>
-      {% for history in history_list %}
-        <li>
-          <p>Status: {{ history.get_status_display }}</p>
-          <p>Modified: {{ history.created }}</p>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No history available for this task.</p>
-  {% endif %}
-  <br><br>
-  <p>Back to <a href="{% url 'repo_detail' view.kwargs.repo_id view.kwargs.repo_name%}">{{ view.kwargs.repo_name }}</a></p>
+        {% if history_list %}
+        {% for history in history_list %}
+        <div class="text-warning mb-3 px-3 bg-black border fs-5">
+            Status: <span class="text-white">{{ history.get_status_display }}</span><br>
+            Modified: <span class="text-white">{{ history.created }}</span>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>No history available for this task.</p>
+        {% endif %}
+        <br><br>
+        <p class="text-warning">Back to <a class="text-white text-decoration-none" href="{% url 'repo_detail' view.kwargs.repo_id view.kwargs.repo_name%}">{{ view.kwargs.repo_name }}</a></p>
+    </div>
+</div>
 {% endblock content %}

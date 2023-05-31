@@ -4,41 +4,64 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-<div class="repository-entry">
-    <h2>{{ repo.name }} Roles Manager</h2>
-</div>
-<div>
-    <p>
-        <a class="btn btn-primary" href="{% url 'role_new' repo.repo_id repo.name %}" role="button">Create Role</a>
-    </p>
-    <!-- Role List -->
-    {% for role in role_list %}
-    <div class="card">
-        <div class="d-inline-flex card-header align-items-center justify-content-between">
-            <div class="text-start">
-                <span class="fw-bold"> {{ role.role_name }} </span>
+<div class="row justify-content-center">
+    <div class="col-4">
+        <div class="bg-dark border py-2 px-5 text-warning">
+            <div class="py-2 align-top text-center">
+                <h1>REPOSITORY ROLES MANAGER</h1>
             </div>
-        </div>
-        <div class="card-body">
-            <span class="fw-bold">
-                {% if repo_users %}
-                {% for uwr in repo_users %}
-                {% if uwr.role.role_id == role.role_id %}
-                <p>{{ uwr.rp_user.username }} <a class="btn btn-danger" href="{% url 'role_remove_assign' repo.repo_id repo.name role.role_id role.role_name uwr.rp_user.username%}" role="button">Remove</a> </p>
-                {% endif %}
-                {% endfor %} 
-                {% endif %}
-            </span>
-        </div>
-        <div class="card-footer text-center text-muted">
-            <a class="btn btn-primary" href="{% url 'role_assign' repo.repo_id repo.name role.role_id%}" role="button">Assign</a>
-            <a class="btn btn-primary" href="{% url 'role_edit' repo.repo_id repo.name role.role_id%}" role="button">Modify</a>
-            <a class="btn btn-primary" href="{% url 'role_delete' repo.repo_id repo.name role.role_id%}" role="button">Cancel</a>
+            <div class="py-2">
+                NAME: <span class="fw-bold text-white">{{ view.kwargs.repo_name }}</span>
+            </div>
+            <div class="d-grid gap-3 col-6 mx-auto w-100">
+                <a class="btn btn-success fs-5 py-2" href="{% url 'role_new' repo.repo_id repo.name %}" role="button">Create Role</a>
+            </div>
+            <div class="py-2 align-bottom">Back to <a class="text-white text-decoration-none" href="{% url 'repo_detail' view.kwargs.repo_id view.kwargs.repo_name%}">{{ view.kwargs.repo_name }}</a></div>
         </div>
     </div>
-    <br />
-    {% endfor %}
-    <p>Back to <a href="{% url 'repo_detail' repo.repo_id repo.name%}">{{ repo.name }}</a></p>
+    <div class="col-8">
+        <!-- Tasks List -->
+        {% for role in role_list %}
+        <div class="card">
+            <div class="d-inline-flex card-header align-items-center justify-content-between bg-black text-warning">
+                <div class="text-start">
+                    <span class="fw-bold"> {{ role.role_name }} </span>
+                </div>
+            </div>
+            <div class="row g-0 card-body bg-dark text-white border-top border-bottom justify-content-between">
+                <div class="col-10 text-warning">
+                    Permissions
+                    <ul>
+                        <li>can change status if task assigned: <span class="text-white">{{role.can_change_status_if_task_assigned}}</span></li>
+                        <li>can manage tasks: <span class="text-white">{{role.can_manage_tasks}}</span></li>
+                        <li>can manage users: <span class="text-white">{{role.can_manage_users}}</span></li>
+                        <li>can manage roles: <span class="text-white">{{role.can_manage_roles}}</span></li>
+                        <li>can cancel repository: <span class="text-white">{{role.can_cancel_repo}}</span></li>
+                    </ul>
+                </div>
+                <div class="col-2 text-end">
+                    <span class="fw-bold text-warning">ASSIGNED TO:</span><br>
+                    {% if repo_users %}
+                    {% for uwr in repo_users %}
+                    {% if uwr.role.role_id == role.role_id %}
+                    <a class="text-white text-decoration-none" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name uwr.rp_user.username%}">{{ uwr.rp_user.username }}</a>
+                    <a class="btn btn-danger btn-sm fw-bold" style="--bs-btn-padding-y: .0rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" href="{% url 'role_remove_assign' view.kwargs.repo_id view.kwargs.repo_name role.role_id role.role_name uwr.rp_user.username%}" role="button">-</a>
+                    {% endif %}
+                    {% endfor %} 
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-inline-flex card-footer text-center align-items-center justify-content-end bg-black text-warning">
+                <div class="text-end">
+                    <a class="btn btn-success" href="{% url 'role_assign' view.kwargs.repo_id view.kwargs.repo_name role.role_id%}" role="button">Assign</a>
+                    <a class="btn btn-warning" href="{% url 'role_edit' view.kwargs.repo_id view.kwargs.repo_name role.role_id%}" role="button">Modify</a>
+                    <a class="btn btn-danger" href="{% url 'role_delete' view.kwargs.repo_id view.kwargs.repo_name role.role_id%}" role="button">Cancel</a>
+                </div>
+            </div>
+        </div>
+        <br />
+        {% endfor %}
+    </div>
 </div>
 {% endif %}
 {% endblock content %}

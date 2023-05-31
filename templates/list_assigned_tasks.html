@@ -7,30 +7,30 @@
 <!-- Tasks List -->
 {% for ut in user_task_list %}
 <div class="card">
-  <div class="d-inline-flex card-header align-items-center justify-content-between">
-    <div class="text-start">
-      <span class="fw-bold"> {{ ut.task.title }} </span>
+    <div class="d-inline-flex card-header align-items-center justify-content-between bg-black text-warning">
+        <div class="text-start">
+            <span class="fw-bold"><a class="text-warning text-decoration-none" href="{% url 'task_detail' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}">{{ ut.task.title }}</a></span>
+        </div>
+        <div class="text-end">
+            <span>{{ ut.task.get_priority_display }} | {{ ut.task.get_status_display }}</span>
+        </div>
     </div>
-    <div class="text-end">
-      <span>{{ ut.task.get_priority_display }} | {{ ut.task.get_status_display }}</span>
+    <div class="card-body bg-dark text-white border-top border-bottom">
+        {{ ut.task.description }}
     </div>
-  </div>
-  <div class="card-body">
-    {{ ut.task.description }}
-  </div>
-  <div class="d-inline-flex card-footer text-center text-muted align-items-center justify-content-between">
-    <div class="text-start">
-      <span>Created {{ ut.task.created }} by {{ ut.task.created_by }}</span>
+    <div class="d-inline-flex card-footer text-center align-items-center justify-content-between bg-black text-warning">
+        <div class="text-start">
+            Created by <a class="text-white text-decoration-none" href="{% url 'repo_personal_profile' ut.task.repo.repo_id ut.task.repo.name ut.task.created_by.get_username%}">{{ ut.task.created_by }}</a>
+        </div>
+        <div class="text-end">
+            <a class="btn btn-secondary" href="{% url 'task_history' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">History</a>
+            <a class="btn btn-warning" href="{% url 'task_edit' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Modify</a>
+            <a class="btn btn-warning" href="{% url 'task_status' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Change Status</a>
+        </div>
     </div>
-    <div class="text-end">
-      <a class="btn btn-primary" href="{% url 'task_history' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">History</a>
-      <a class="btn btn-warning" href="{% url 'task_edit' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Modify</a>
-      <a class="btn btn-warning" href="{% url 'task_status' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Change Status</a>
-      <a class="btn btn-warning" href="{% url 'task_delete' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Delete</a>
-    </div>
-  </div>
 </div>
 <br />
 {% endfor %}
+
 {% endif %}
 {% endblock content %}

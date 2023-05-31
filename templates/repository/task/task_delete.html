@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Delete task</h1>
-<form action="" method="post">{% csrf_token %}
-  <p>Are you sure you want to delete "{{ task.title }}"?</p>
-  <button class="btn btn-danger ml-2" type="submit">Confirm</button>
-</form>
+<div class="row align-items-center justify-content-center">
+    <div class="col-6 bg-dark p-5 border">
+        <h1 class="text-warning text-uppercase">Delete task</h1>
+        <form action="" method="post">{% csrf_token %}
+            <p>Are you sure you want to delete <span class="text-warning">{{ task.title }}</span>?</p>
+            <button class="btn btn-danger w-100 fw-bold fs-4 mt-5 py-2" type="submit">Delete</button>
+        </form>
+    </div>
+</div>
 {% endblock content %}

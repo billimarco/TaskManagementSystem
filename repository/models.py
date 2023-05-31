@@ -29,7 +29,7 @@ class Repo_role(models.Model):
     role_id = models.AutoField(primary_key=True)
     role_name = models.CharField(max_length=30)
     can_change_status_if_task_assigned = models.BooleanField(default=True)
-    can_manage_task = models.BooleanField(default=False)
+    can_manage_tasks = models.BooleanField(default=False)
     can_manage_users = models.BooleanField(default=False)
     can_manage_roles = models.BooleanField(default=False)
     can_cancel_repo = models.BooleanField(default=False)

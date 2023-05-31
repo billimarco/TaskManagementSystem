@@ -2,51 +2,56 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-<div class="repository-entry">
-  <h2>{{ view.kwargs.username }}</h2>
-</div>
-<div>
-  <p>
-    <span class="fw-bold">
-        {% if user_roles %}
-        {% for ur in user_roles %}
-        <p>{{ ur.role.role_name }}</p>
+<div class="row justify-content-center">
+    <div class="col-4">
+        <div class="bg-dark border py-2 px-5 text-warning">
+            <div class="py-2 align-top text-center">
+                <h1 class="text-uppercase">REPOSITORY PROFILE</h1>
+            </div>
+            <div class="py-2">
+                USERNAME: <span class="fw-bold text-white">{{view.kwargs.username}}</span>
+            </div>
+            <div class="d-grid gap-3 col-6 mx-auto w-100">
+                ROLES:
+                <ul class="fw-bold text-white"> 
+                {% if user_roles %}
+                {% for ur in user_roles %}
+                <li>{{ ur.role.role_name }}</li>
+                {% endfor %}
+                {% endif %}
+            </div>
+            <div class="py-2 align-bottom">Back to <a class="text-white text-decoration-none" href="{% url 'repo_detail' view.kwargs.repo_id view.kwargs.repo_name%}">{{ view.kwargs.repo_name }}</a></div>
+        </div>
+    </div>
+    <div class="col-8">
+        <!-- Tasks List -->
+        {% for ut in user_tasks %}
+        <div class="card">
+            <div class="d-inline-flex card-header align-items-center justify-content-between bg-black text-warning">
+                <div class="text-start">
+                    <span class="fw-bold"><a class="text-warning text-decoration-none" href="{% url 'task_detail' view.kwargs.repo_id view.kwargs.repo_name ut.task.task_id %}">{{ ut.task.title }}</span></a>
+                </div>
+                <div class="text-end">
+                    <span>{{ ut.task.get_priority_display }} | {{ ut.task.get_status_display }}</span>
+                </div>
+            </div>
+            <div class="card-body bg-dark text-white border-top border-bottom">
+                {{ ut.task.description }}
+            </div>
+            <div class="d-inline-flex card-footer text-center align-items-center justify-content-between bg-black text-warning">
+                <div class="text-start">
+                  Created by <a class="text-white text-decoration-none" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name ut.task.created_by.get_username%}">{{ ut.task.created_by }}</a>
+                </div>
+                <div class="text-end">
+                    <a class="btn btn-secondary" href="{% url 'task_history' view.kwargs.repo_id view.kwargs.repo_name ut.task.task_id %}" role="button">History</a>
+                    <a class="btn btn-warning" href="{% url 'task_edit' view.kwargs.repo_id view.kwargs.repo_name ut.task.task_id %}" role="button">Modify</a>
+                    <a class="btn btn-warning" href="{% url 'task_status' view.kwargs.repo_id view.kwargs.repo_name ut.task.task_id %}" role="button">Change Status</a>
+                </div>
+            </div>
+        </div>
+        <br />
         {% endfor %}
-        {% endif %}
-    </span>
-  </p>
-
-  <!-- Tasks List -->
-  {% for ut in user_tasks %}
-  <div class="card">
-    <div class="d-inline-flex card-header align-items-center justify-content-between">
-      <div class="text-start">
-        <span class="fw-bold"> {{ ut.task.title }} </span>
-      </div>
-      <div class="text-end">
-        <span>{{ ut.task.get_priority_display }} | {{ ut.task.get_status_display }}</span>
-      </div>
     </div>
-    <div class="card-body">
-      <div>
-        {{ ut.task.description }}
-      </div>
-    </div>
-    <div class="d-inline-flex card-footer text-center text-muted align-items-center justify-content-between">
-      <div class="text-start">
-        <span>Created {{ ut.task.created }} by {{ ut.task.created_by }}</span>
-      </div>
-      <div class="text-end">
-        <a class="btn btn-primary" href="" role="button">History</a>
-        <a class="btn btn-warning" href="{% url 'task_edit' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Modify</a>
-        <a class="btn btn-warning" href="{% url 'task_status' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Change Status</a>
-        <a class="btn btn-warning" href="{% url 'task_delete' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Delete</a>
-      </div>
-    </div>
-  </div>
-  <br />
-  {% endfor %}
-  <p>Back to <a href="{% url 'repo_detail' view.kwargs.repo_id view.kwargs.repo_name%}">{{ view.kwargs.repo_name }}</a></p>
 </div>
 {% endif %}
 {% endblock content %}

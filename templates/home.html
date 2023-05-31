@@ -1,15 +1,84 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Home{% endblock title %}
 
 {% block content %}
-{% if user.is_authenticated %}
-<h1>Hi {{ user.username }}!</h1>
-<p><a class="btn btn-primary btn-lg" href="{% url 'list_assigned_tasks' %}" role="button">Watch your assigned tasks</a></p>
-<p><a class="btn btn-primary btn-lg" href="{% url 'repo_list' %}" role="button">Watch your repositories</a></p>
-<p><a class="btn btn-primary btn-lg" href="{% url 'repo_new' %}" role="button">Create repository</a></p>
-<!-- new -->
-{% else %}
-<h1>Welcome in Task Management System</h1>
-{% endif %}
+<div class="text-center text-white bg-dark p-4 border">
+    {% if user.is_authenticated %}
+    <div class="fw-bold fs-1">HI <span class="text-warning text-uppercase">{{ user.username }}</span>!</div>
+    {% endif %}
+    <div class="my-4">
+        <h1 class="fw-bold">WELCOME IN</h1>
+        <img src="{% static "images/logo.png" %}">
+    </div>
+    {% if user.is_authenticated %}
+    <p><a class="btn btn-warning btn-lg p-4 w-50 fw-bold fs-3" href="{% url 'list_assigned_tasks' %}" role="button">Watch your assigned tasks</a></p>
+    <p><a class="btn btn-warning btn-lg p-4 w-50 fw-bold fs-3" href="{% url 'repo_list' %}" role="button">Watch your repositories</a></p>
+    <p><a class="btn btn-warning btn-lg p-4 w-50 fw-bold fs-3" href="{% url 'repo_new' %}" role="button">Create repository</a></p>
+    {% else %}
+    <div class="row justify-content-center">
+        <div class="col-2">
+            <a href="{% url 'login' %}" class="btn btn-outline-warning btn-lg p-4 w-100 fw-bold fs-3">Log In</a>
+        </div>
+        <div class="col-2">
+            <a href="{% url 'signup' %}" class="btn btn-warning btn-lg p-4 w-100 fw-bold fs-3">Sign Up</a>
+        </div>
+    </div>
+    <div class="my-5 justify-content-center text-start">
+        <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button bg-black text-warning fw-bold fs-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        THE ABSOLUTELY NOT PERFECT TASK MANAGEMENT SYSTEM IS HERE FOR YOU
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show">
+                    <div class="accordion-body bg-secondary fs-5 text-white">
+                        After logging in, you will have the possibility to create your own personal repositories in which to create tasks. 
+                        You will be able to see the list of repositories you belong to and interact with them. 
+                        If that weren't enough, we did (or rather I did) ensure that every user could see the tasks assigned to him without having to enter every single repository. 
+                        Ah... colors like this can seem not very good especially for the eyes. Unfortunately these are the bootstrap colors. 
+                        (Spoiler: it could be done better only that I have to take other exams too... have mercy).
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button bg-black text-warning fw-bold fs-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        REPOSITORY
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse">
+                    <div class="accordion-body bg-secondary fs-5 text-white">
+                        In each repository there will be the possibility to add new users who can interact with it
+                        (this also means they can be thrown out). Roles can also be managed, created and assigned
+                        to users who interact with the repository. Also remember that only if you have certain permits you can play
+                        certain functions in the repositories and that, since a user in a repository can be assigned multiple roles, the permissions accumulate.
+                        Obviously, needless to say, the tasks for each single repository can be managed, created, modified, etc.
+
+                        P.S. If you're wondering why a user can be forced into a repository by another user
+                        thus creating a vicious circle of possible spam ...
+                        well at the moment it's just like that, we'll think about it in a next version ... maybe.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button bg-black text-warning fw-bold fs-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        TASK
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse">
+                    <div class="accordion-body bg-secondary fs-5 text-white">
+                        There is not much to add compared to the repository part. In all cases, however, it will be possible to check the status of our tasks.
+                        Furthermore, the possibility of seeing the "history" of the task has been added so as to be able to trace its status over time. There doesn't seem to be much more to add.
+                        Having said that, have fun.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock content %}

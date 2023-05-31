@@ -4,39 +4,53 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-<div class="repository-entry">
-    <h2>{{ repo.name }} Users Manager</h2>
-</div>
-<div>
-    <p>
-        <a class="btn btn-primary" href="{% url 'repo_user_add' repo.repo_id repo.name %}" role="button">Add User</a>
-    </p>
-    <!-- Repo Users List -->
-    {% for repo_user in repo_user_list %}
-    <div class="card">
-        <div class="d-inline-flex card-header align-items-center justify-content-between">
-            <div class="text-start">
-                <span class="fw-bold"> {{ repo_user.username }} </span>
+<div class="row justify-content-center">
+    <div class="col-4">
+        <div class="bg-dark border py-2 px-5 text-warning">
+            <div class="py-2 align-top text-center">
+                <h1>REPOSITORY USERS MANAGER</h1>
             </div>
-        </div>
-        <div class="card-body">
-            <span class="fw-bold">
-                {% if users_role_list %}
-                {% for role_user in users_role_list %}
-                {% if role_user.rp_user.username == repo_user.username %}
-                <p>{{ role_user.role.role_name }}</p>
-                {% endif %}
-                {% endfor %}
-                {% endif %}
-            </span>
-        </div>
-        <div class="card-footer text-center text-muted">
-            <a class="btn btn-primary" href="{% url 'repo_user_remove' repo.repo_id repo.name repo_user.username%}" role="button">Delete</a>
+            <div class="py-2">
+                NAME: <span class="fw-bold text-white">{{ view.kwargs.repo_name }}</span>
+            </div>
+            <div class="d-grid gap-3 col-6 mx-auto w-100">
+                <a class="btn btn-success fs-5 py-2" href="{% url 'repo_user_add' repo.repo_id repo.name %}" role="button">Add User</a>
+            </div>
+            <div class="py-2 align-bottom">Back to <a class="text-white text-decoration-none" href="{% url 'repo_detail' view.kwargs.repo_id view.kwargs.repo_name%}">{{ view.kwargs.repo_name }}</a></div>
         </div>
     </div>
-    <br />
-    {% endfor %}
-    <p>Back to <a href="{% url 'repo_detail' repo.repo_id repo.name%}">{{ repo.name }}</a></p>
+    <div class="col-8">
+        <!-- Tasks List -->
+        {% for repo_user in repo_user_list %}
+        <div class="card">
+            <div class="d-inline-flex card-header align-items-center justify-content-between bg-black text-warning">
+                <div class="text-start">
+                    <a class="fw-bold text-white text-decoration-none" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name repo_user.username%}">{{ repo_user.username }}</a>
+                </div>
+            </div>
+            <div class="row g-0 card-body bg-dark text-white border-top border-bottom justify-content-between">
+                <div class="col-12 text-warning">
+                    Roles
+                    <ul>
+                        {% if users_role_list %}
+                        {% for role_user in users_role_list %}
+                        {% if role_user.rp_user.username == repo_user.username %}
+                        <li><span class="text-white">{{ role_user.role.role_name }}</span></li>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="d-inline-flex card-footer text-center align-items-center justify-content-end bg-black text-warning">
+                <div class="text-end">
+                    <a class="btn btn-danger" href="{% url 'repo_user_remove' view.kwargs.repo_id view.kwargs.repo_name repo_user.username%}" role="button">Remove</a>
+                </div>
+            </div>
+        </div>
+        <br />
+        {% endfor %}
+    </div>
 </div>
 {% endif %}
 {% endblock content %}

@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Delete repo user</h1>
-<form action="" method="post">{% csrf_token %}
-  <p>Are you sure you want to remove {{ view.kwargs.username }} from the repository {{ view.kwargs.repo_name }}?</p>
-  <button class="btn btn-danger ml-2" type="submit">Confirm</button>
-</form>
+<div class="row align-items-center justify-content-center">
+    <div class="col-6 bg-dark p-5 border">
+        <h1 class="text-warning text-uppercase">Delete repo user</h1>
+        <form action="" method="post">{% csrf_token %}
+            <p>Are you sure you want to remove <span class="text-warning">{{ view.kwargs.username }}</span> from the repository <span class="text-warning">{{ view.kwargs.repo_name }}</span>?</p>
+            <button class="btn btn-danger w-100 fw-bold fs-4 mt-5 py-2" type="submit">Delete</button>
+        </form>
+    </div>
+</div>
 {% endblock content %}

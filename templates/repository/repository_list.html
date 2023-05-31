@@ -7,16 +7,18 @@
 <!-- Repository List -->
 {% if repo_list %}
 {% for repository in repo_list %}
-<div class="card">
-  <div class="card-body">
-    <span class="fw-bold">
-      <a href="{% url 'repo_detail' repository.repo_id repository.name %}">{{ repository.name }}</a>
-    </span>
-  </div>
-  <div class="card-footer text-center text-muted">
-    <span>Created {{ repository.created }} by {{ repository.created_by }}</span>
-    <span>Last modified {{ repository.last_modified }}</span>
-  </div>
+<div class="row align-items-center justify-content-center">
+    <div class="col-8">
+        <div class="card">
+            <div class="card-header text-center bg-dark">
+                <a class="fw-bold text-white fs-1 text-decoration-none" href="{% url 'repo_detail' repository.repo_id repository.name %}">{{ repository.name }}</a>
+            </div>
+            <div class="d-inline-flex card-footer bg-black text-warning align-items-center justify-content-between border-top">
+                <div class="text-start">Created <span class="text-white">{{ repository.created }}</span> by <a class="text-white text-decoration-none" href="{% url 'repo_personal_profile' repository.repo_id repository.name repository.created_by.get_username%}">{{ repository.created_by }}</a></div>
+                <div class="text-end">Last modified <span class="text-white">{{ repository.last_modified }}</span></div>
+            </div>
+        </div>
+    </div>
 </div>
 <br />
 {% endfor %}
