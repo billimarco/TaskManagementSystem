@@ -1,14 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="task-entry">
-  <h2>{{ task.title }}</h2> {{ task.get_priority_display }} | {{ task.get_status_display }}
-  <p>{{ task.description }}</p>
-</div>
-<div>
-  <p><a href="{% url 'task_edit' task.task_id %}">Edit</a>
-    <a href="{% url 'task_delete' task.task_id %}">Delete</a>
-  </p>
-  <p>Back to <a href="{% url 'list_assigned_tasks' %}">All Assigned Tasks</a>.</p>
+<div class="row align-items-center justify-content-center">
+  <div class="col-6 bg-dark py-3 px-5 border text-warning">
+    <div class="py-2 align-top text-center">
+      <h1 class="text-warning text-uppercase">TASK</h1>
+    </div>
+    <div class="py-2">
+        Title: <span class="fw-bold text-white">{{ task.title }}</span>
+    </div>
+    <div class="py-2">
+      Priority: <span class="fw-bold text-white">{{ task.get_priority_display }}</span>
+    </div>
+    <div class="py-2">
+      Status: <span class="fw-bold text-white">{{ task.get_status_display }}</span>
+    </div>
+    <div class="py-2">
+      Description: 
+      <div class="text-warning my-2 p-3 bg-black border text-wrap text-break">
+          <span class="fw-bold text-white">{{ task.description }}</span>
+      </div>
+    </div>
+    <div class="py-2 align-bottom">Back to <a class="text-white text-decoration-none" href="{% url 'repo_detail' view.kwargs.repo_id view.kwargs.repo_name%}">{{ view.kwargs.repo_name }}</a></div> 
+  </div>
 </div>
 {% endblock content %}

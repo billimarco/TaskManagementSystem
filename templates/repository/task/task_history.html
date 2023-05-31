@@ -9,7 +9,7 @@
 
         {% if history_list %}
         {% for history in history_list %}
-        <div class="text-warning mb-3 px-3 bg-black border fs-5">
+        <div class="text-warning mb-3 p-3 bg-black border fs-5">
             Status: <span class="text-white">{{ history.get_status_display }}</span><br>
             Modified: <span class="text-white">{{ history.created }}</span>
         </div>

@@ -25,17 +25,17 @@
         <div class="card">
             <div class="d-inline-flex card-header align-items-center justify-content-between bg-black text-warning">
                 <div class="text-start">
-                    <a class="fw-bold text-white text-decoration-none" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name repo_user.username%}">{{ repo_user.username }}</a>
+                    <a class="fw-bold text-warning text-decoration-none" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name repo_user.username%}">{{ repo_user.username }}</a>
                 </div>
             </div>
             <div class="row g-0 card-body bg-dark text-white border-top border-bottom justify-content-between">
-                <div class="col-12 text-warning">
+                <div class="col-12">
                     Roles
                     <ul>
                         {% if users_role_list %}
                         {% for role_user in users_role_list %}
                         {% if role_user.rp_user.username == repo_user.username %}
-                        <li><span class="text-white">{{ role_user.role.role_name }}</span></li>
+                        <li><span class="text-warning">{{ role_user.role.role_name }}</span></li>
                         {% endif %}
                         {% endfor %}
                         {% endif %}
