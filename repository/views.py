@@ -81,6 +81,7 @@ class RepositoryDetailView(DetailView):
         # Add in a QuerySet of all the tasks
         context["repo_tasks"] = Task.objects.all().filter(repo__repo_id = self.kwargs["repo_id"])
         context["repo_tasks_assignment"] = Task_assignment.objects.all().filter(task__repo__repo_id = self.kwargs["repo_id"])
+        context["repo_auth_user_role"] = Repo_user.objects.all().filter(rp_user=self.request.user).filter(role__repo__repo_id = self.kwargs["repo_id"])
         return context
     
 class DeleteRepositoryView(RepoRolePermissionRequiredMixin,DeleteView):
@@ -107,6 +108,8 @@ class PersonalProfileView(DetailView):
         # Add in a QuerySet of all the tasks
         context["user_roles"] = Repo_user.objects.all().filter(rp_user__username = self.kwargs["username"]).filter(role__repo__repo_id = self.kwargs["repo_id"])
         context["user_tasks"] = Task_assignment.objects.all().filter(ass_user__username = self.kwargs["username"]).filter(task__repo__repo_id = self.kwargs["repo_id"])
+        context["repo_tasks_assignment"] = Task_assignment.objects.all().filter(task__repo__repo_id = self.kwargs["repo_id"])
+        context["repo_auth_user_role"] = Repo_user.objects.all().filter(rp_user=self.request.user).filter(role__repo__repo_id = self.kwargs["repo_id"])
         return context
     
 

@@ -43,8 +43,8 @@
                 </div>
             </div>
             <div class="d-inline-flex card-footer text-center align-items-center justify-content-end bg-black text-warning">
-                <div class="text-end">
-                    <a class="btn btn-danger" href="{% url 'repo_user_remove' view.kwargs.repo_id view.kwargs.repo_name repo_user.username%}" role="button">Remove</a>
+                <div class="d-flex gap-1 text-end">
+                    <a class="btn btn-danger order-1" href="{% url 'repo_user_remove' view.kwargs.repo_id view.kwargs.repo_name repo_user.username%}" role="button">Remove</a>
                 </div>
             </div>
         </div>

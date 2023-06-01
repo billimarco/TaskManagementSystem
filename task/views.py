@@ -6,7 +6,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from .forms import AssignTaskForm
 from .models import Task,Task_assignment,Task_status_history
 from repository.mixins.permissions import RepoRolePermissionRequiredMixin
-from repository.models import Repository,Repo_role
+from repository.models import Repository,Repo_role,Repo_user
 from django.shortcuts import redirect
 from django.urls import reverse_lazy,reverse
 
@@ -20,6 +20,11 @@ class AssignedTasksListView(ListView):
     def get_queryset(self):
         return Task_assignment.objects.all().filter(ass_user=self.request.user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["repo_auth_user_role"] = Repo_user.objects.all().filter(rp_user=self.request.user)
+        return context
+    
     def get(self, request: HttpRequest, *args: any, **kwargs: any) -> HttpResponse:
         # If the user is not logged in, redirect to signup page.
         if not request.user.is_authenticated:

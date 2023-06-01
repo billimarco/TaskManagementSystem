@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_tags %}
 {% block content %}
 {% if user.is_authenticated %}
 <div class="row justify-content-center">
@@ -11,11 +12,27 @@
                 NAME: <span class="fw-bold text-white">{{ view.kwargs.repo_name }}</span>
             </div>
             <div class="d-grid gap-3 col-6 mx-auto w-100">
-                <a class="btn btn-secondary fs-5 py-2" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name user.get_username%}" role="button">Your repository profile</a>
-                <a class="btn btn-success fs-5 py-2" href="{% url 'task_new' view.kwargs.repo_id view.kwargs.repo_name %}" role="button">Create Task</a>
-                <a class="btn btn-warning fs-5 py-2" href="{% url 'repo_user_list' view.kwargs.repo_id view.kwargs.repo_name %}" role="button">Users Manager</a>
-                <a class="btn btn-warning fs-5 py-2" href="{% url 'role_list' view.kwargs.repo_id view.kwargs.repo_name %}" role="button">Roles Manager</a>
-                <a class="btn btn-danger fs-5 py-2" href="{% url 'repo_delete' view.kwargs.repo_id view.kwargs.repo_name %}" role="button">Cancel Repository</a>
+                <a class="btn btn-secondary fs-5 py-2 order-1" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name user.get_username%}" role="button">Your repository profile</a>
+                {% with button_rendered_mt_repo_menu=False button_rendered_mu_repo_menu=False button_rendered_mr_repo_menu=False button_rendered_cr_repo_menu=False %}
+                {% for rau in repo_auth_user_role %}
+                    {% if rau.role.can_manage_tasks and not button_rendered_mt_repo_menu %} 
+                        <a class="btn btn-success fs-5 py-2 order-2" href="{% url 'task_new' view.kwargs.repo_id view.kwargs.repo_name %}" role="button">Create Task</a>
+                        {% changeStatement button_rendered_mt_repo_menu as button_rendered_mt_repo_menu %}
+                    {% endif%}
+                    {% if rau.role.can_manage_users and not button_rendered_mu_repo_menu %}
+                        <a class="btn btn-warning fs-5 py-2 order-3" href="{% url 'repo_user_list' view.kwargs.repo_id view.kwargs.repo_name %}" role="button">Users Manager</a>
+                        {% changeStatement button_rendered_mu_repo_menu as button_rendered_mu_repo_menu %}
+                    {% endif%}
+                    {% if rau.role.can_manage_roles and not button_rendered_mr_repo_menu %}
+                        <a class="btn btn-warning fs-5 py-2 order-4" href="{% url 'role_list' view.kwargs.repo_id view.kwargs.repo_name %}" role="button">Roles Manager</a>
+                        {% changeStatement button_rendered_mr_repo_menu as button_rendered_mr_repo_menu %}
+                    {% endif%}
+                    {% if rau.role.can_cancel_repo and not button_rendered_cr_repo_menu %}
+                        <a class="btn btn-danger fs-5 py-2 order-5" href="{% url 'repo_delete' view.kwargs.repo_id view.kwargs.repo_name %}" role="button">Cancel Repository</a>
+                        {% changeStatement button_rendered_cr_repo_menu as button_rendered_cr_repo_menu %}
+                    {% endif%}
+                {% endfor %}
+                {% endwith %}
             </div>
             <div class="py-2 align-bottom">Back to <a class="text-white text-decoration-none" href="{% url 'repo_list' %}">Repository List</a>.</div>
         </div>
@@ -39,10 +56,18 @@
                 <div class="col-2 text-end">
                     <span class="fw-bold text-warning">ASSIGNED TO:</span><br>
                     {% for at in repo_tasks_assignment %}
-                    {% if at.task.task_id == rt.task_id %}
-                    <a class="text-white text-decoration-none" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name at.ass_user.username%}">{{ at.ass_user.username }}</a> 
-                    <a class="btn btn-danger btn-sm fw-bold" style="--bs-btn-padding-y: .0rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" href="{% url 'task_remove_assign' view.kwargs.repo_id view.kwargs.repo_name rt.task_id rt.title at.ass_user.username%}" role="button">-</a><br>
-                    {% endif %}
+                        {% if at.task.task_id == rt.task_id %}
+                        <a class="text-white text-decoration-none" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name at.ass_user.username%}">{{ at.ass_user.username }}</a>
+                            {% with button_rendered_mt_body_task=False %}
+                            {% for rau in repo_auth_user_role %}
+                                {% if rau.role.can_manage_tasks and not button_rendered_mt_body_task %} 
+                                    <a class="btn btn-danger btn-sm fw-bold" style="--bs-btn-padding-y: .0rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" href="{% url 'task_remove_assign' view.kwargs.repo_id view.kwargs.repo_name rt.task_id rt.title at.ass_user.username%}" role="button">-</a>
+                                    {% changeStatement button_rendered_mt_body_task as button_rendered_mt_body_task %}
+                                {% endif %}
+                            {% endfor %}
+                            {% endwith %}
+                        <br>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
@@ -50,12 +75,26 @@
                 <div class="text-start">
                   Created by <a class="text-white text-decoration-none" href="{% url 'repo_personal_profile' view.kwargs.repo_id view.kwargs.repo_name rt.created_by.get_username%}">{{ rt.created_by }}</a>
                 </div>
-                <div class="text-end">
-                    <a class="btn btn-secondary" href="{% url 'task_history' view.kwargs.repo_id view.kwargs.repo_name rt.task_id %}" role="button">History</a>
-                    <a class="btn btn-success" href="{% url 'task_assign' view.kwargs.repo_id view.kwargs.repo_name rt.task_id%}" role="button">Assign</a>
-                    <a class="btn btn-warning" href="{% url 'task_edit' view.kwargs.repo_id view.kwargs.repo_name rt.task_id %}" role="button">Modify</a>
-                    <a class="btn btn-warning" href="{% url 'task_status' view.kwargs.repo_id view.kwargs.repo_name rt.task_id %}" role="button">Change Status</a>
-                    <a class="btn btn-danger" href="{% url 'task_delete' view.kwargs.repo_id view.kwargs.repo_name rt.task_id %}" role="button">Delete</a>
+                <div class="d-flex gap-1 text-end">
+                    <a class="btn btn-secondary order-1" href="{% url 'task_history' view.kwargs.repo_id view.kwargs.repo_name rt.task_id %}" role="button">History</a>
+                    {% with button_rendered_mt_footer_task=False button_rendered_change_status=False %}
+                    {% for rau in repo_auth_user_role %}
+                        {% if rau.role.can_manage_tasks and not button_rendered_mt_footer_task %}
+                            <a class="btn btn-success order-2" href="{% url 'task_assign' view.kwargs.repo_id view.kwargs.repo_name rt.task_id%}" role="button">Assign</a>
+                            <a class="btn btn-warning order-3" href="{% url 'task_edit' view.kwargs.repo_id view.kwargs.repo_name rt.task_id %}" role="button">Modify</a>
+                            <a class="btn btn-danger order-5" href="{% url 'task_delete' view.kwargs.repo_id view.kwargs.repo_name rt.task_id %}" role="button">Delete</a>
+                            {% changeStatement button_rendered_mt_footer_task as button_rendered_mt_footer_task %}
+                        {% endif%}
+                        {% if rau.role.can_change_status_if_task_assigned and not button_rendered_change_status%}
+                            {% for at in repo_tasks_assignment %}
+                                {% if at.ass_user.username == user.get_username and rt.task_id == at.task.task_id%}
+                                    <a class="btn btn-warning order-4" href="{% url 'task_status' view.kwargs.repo_id view.kwargs.repo_name rt.task_id %}" role="button">Change Status</a>
+                                {% endif %}
+                            {% endfor %}
+                            {% changeStatement button_rendered_change_status as button_rendered_change_status %}
+                        {% endif %}    
+                    {% endfor %}
+                    {% endwith %}
                 </div>
             </div>
         </div>

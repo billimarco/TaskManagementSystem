@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load custom_tags %}
 {% block title %}Assigned Tasks{% endblock title %}
 
 {% block content %}
@@ -22,10 +22,22 @@
         <div class="text-start">
             Created by <a class="text-white text-decoration-none" href="{% url 'repo_personal_profile' ut.task.repo.repo_id ut.task.repo.name ut.task.created_by.get_username%}">{{ ut.task.created_by }}</a>
         </div>
-        <div class="text-end">
-            <a class="btn btn-secondary" href="{% url 'task_history' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">History</a>
-            <a class="btn btn-warning" href="{% url 'task_edit' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Modify</a>
-            <a class="btn btn-warning" href="{% url 'task_status' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Change Status</a>
+        <div class="d-flex gap-1 text-end">
+            <a class="btn btn-secondary order-1" href="{% url 'task_history' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">History</a>
+            {% with button_rendered_modify=False button_rendered_change_status=False%}
+            {% for rau in repo_auth_user_role %}
+                {% if rau.role.repo.repo_id == ut.task.repo.repo_id%}
+                    {% if rau.role.can_manage_tasks and not button_rendered_modify %}
+                        <a class="btn btn-warning order-2" href="{% url 'task_edit' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Modify</a>
+                        {% changeStatement button_rendered_modify as button_rendered_modify %}
+                    {% endif %}
+                    {% if rau.role.can_change_status_if_task_assigned and not button_rendered_change_status %}
+                        <a class="btn btn-warning order-3" href="{% url 'task_status' ut.task.repo.repo_id ut.task.repo.name ut.task.task_id %}" role="button">Change Status</a>
+                        {% changeStatement button_rendered_change_status as button_rendered_change_status %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            {% endwith %}
         </div>
     </div>
 </div>

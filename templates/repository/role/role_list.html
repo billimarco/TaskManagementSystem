@@ -52,10 +52,10 @@
                 </div>
             </div>
             <div class="d-inline-flex card-footer text-center align-items-center justify-content-end bg-black text-warning">
-                <div class="text-end">
-                    <a class="btn btn-success" href="{% url 'role_assign' view.kwargs.repo_id view.kwargs.repo_name role.role_id%}" role="button">Assign</a>
-                    <a class="btn btn-warning" href="{% url 'role_edit' view.kwargs.repo_id view.kwargs.repo_name role.role_id%}" role="button">Modify</a>
-                    <a class="btn btn-danger" href="{% url 'role_delete' view.kwargs.repo_id view.kwargs.repo_name role.role_id%}" role="button">Cancel</a>
+                <div class="d-flex gap-1 text-end">
+                    <a class="btn btn-success order-1" href="{% url 'role_assign' view.kwargs.repo_id view.kwargs.repo_name role.role_id%}" role="button">Assign</a>
+                    <a class="btn btn-warning order-2" href="{% url 'role_edit' view.kwargs.repo_id view.kwargs.repo_name role.role_id%}" role="button">Modify</a>
+                    <a class="btn btn-danger order-3" href="{% url 'role_delete' view.kwargs.repo_id view.kwargs.repo_name role.role_id%}" role="button">Cancel</a>
                 </div>
             </div>
         </div>
