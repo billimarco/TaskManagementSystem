@@ -1,17 +1,15 @@
-from django.http import HttpResponse
-from django.http import HttpRequest
-from django.views import View
 from django.views.generic import ListView, DetailView  # new
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from .forms import AssignTaskForm
 from .models import Task,Task_assignment,Task_status_history
 from repository.mixins.permissions import RepoRolePermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from repository.models import Repository,Repo_role,Repo_user
 from django.shortcuts import redirect
 from django.urls import reverse_lazy,reverse
 
     
-class AssignedTasksListView(ListView):
+class AssignedTasksListView(LoginRequiredMixin,ListView):
     model = Task_assignment
     template_name = "list_assigned_tasks.html"
     context_object_name = "user_task_list"
@@ -25,14 +23,7 @@ class AssignedTasksListView(ListView):
         context["repo_auth_user_role"] = Repo_user.objects.all().filter(rp_user=self.request.user)
         return context
     
-    def get(self, request: HttpRequest, *args: any, **kwargs: any) -> HttpResponse:
-        # If the user is not logged in, redirect to signup page.
-        if not request.user.is_authenticated:
-            return redirect("home")
-            # return redirect("signup")
-        return super().get(request, *args, **kwargs)
-    
-class TaskDetailView(DetailView):
+class TaskDetailView(LoginRequiredMixin,DetailView):
     model = Task
     template_name = "repository/task/task_detail.html"
     context_object_name = "task"
@@ -43,7 +34,7 @@ class TaskDetailView(DetailView):
     
 #Repo_tasks feature
     
-class CreateTaskView(RepoRolePermissionRequiredMixin,CreateView):
+class CreateTaskView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,CreateView):
     model = Task
     fields = ["title",
               "description",
@@ -63,7 +54,7 @@ class CreateTaskView(RepoRolePermissionRequiredMixin,CreateView):
         form.instance.repo = Repository.objects.get(repo_id=self.kwargs["repo_id"])
         return super(CreateTaskView, self).form_valid(form)
 
-class AssignTaskView(RepoRolePermissionRequiredMixin,CreateView):
+class AssignTaskView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,CreateView):
     form_class = AssignTaskForm
     template_name = "repository/task/task_assign.html"
     pk_url_kwarg = "repo_id"
@@ -82,7 +73,7 @@ class AssignTaskView(RepoRolePermissionRequiredMixin,CreateView):
         form.instance.task = Task.objects.get(task_id=self.kwargs["task_id"])
         return super(AssignTaskView, self).form_valid(form)
 
-class RemoveAssignTaskView(RepoRolePermissionRequiredMixin,DeleteView):
+class RemoveAssignTaskView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,DeleteView):
     model = Task_assignment
     template_name = "repository/task/task_remove_assign.html"
     pk_url_kwarg = "repo_id"
@@ -94,7 +85,7 @@ class RemoveAssignTaskView(RepoRolePermissionRequiredMixin,DeleteView):
     def get_object(self):
         return Task_assignment.objects.all().filter(ass_user__username=self.kwargs["username"]).get(task__task_id=self.kwargs["task_id"])
     
-class ModifyTaskView(RepoRolePermissionRequiredMixin,UpdateView):
+class ModifyTaskView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,UpdateView):
     model = Task
     fields = ["title",
               "description",
@@ -111,7 +102,7 @@ class ModifyTaskView(RepoRolePermissionRequiredMixin,UpdateView):
     def get_object(self):
         return Task.objects.get(task_id=self.kwargs["task_id"])
     
-class ModifyTaskStatusView(RepoRolePermissionRequiredMixin,UpdateView):
+class ModifyTaskStatusView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,UpdateView):
     model = Task
     fields = ["status"]
     template_name = "repository/task/task_edit.html"
@@ -125,7 +116,7 @@ class ModifyTaskStatusView(RepoRolePermissionRequiredMixin,UpdateView):
     def get_object(self):
         return Task.objects.get(task_id=self.kwargs["task_id"])
     
-class DeleteTaskView(RepoRolePermissionRequiredMixin,DeleteView):
+class DeleteTaskView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,DeleteView):
     model = Task
     template_name = "repository/task/task_delete.html"
     context_object_name = "task"
@@ -138,7 +129,7 @@ class DeleteTaskView(RepoRolePermissionRequiredMixin,DeleteView):
     def get_object(self):
         return Task.objects.get(task_id=self.kwargs["task_id"])
     
-class HistoryTaskView(ListView):
+class HistoryTaskView(LoginRequiredMixin,ListView):
     model = Task_status_history
     template_name = "repository/task/task_history.html"
     context_object_name = "history_list"

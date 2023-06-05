@@ -3,6 +3,7 @@ from django.http import HttpRequest
 from django.views.generic import ListView, DetailView  # new
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from .mixins.permissions import RepoRolePermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import AddUserForm,AssignRoleForm
 from .models import Repository,Repo_role,Repo_user
 from task.models import Task,Task_assignment
@@ -12,7 +13,7 @@ from django.urls import reverse_lazy,reverse
 
 #repository views
 
-class RepositoryListView(ListView):
+class RepositoryListView(LoginRequiredMixin,ListView):
     model = Repository
     template_name = "repository/repository_list.html"
     context_object_name = "repo_list"
@@ -20,15 +21,8 @@ class RepositoryListView(ListView):
     
     def get_queryset(self):
         return Repository.objects.all().filter(repo_id__in = Repo_user.objects.all().filter(rp_user=self.request.user).values("role__repo_id").distinct())
-
-    def get(self, request: HttpRequest, *args: any, **kwargs: any) -> HttpResponse:
-        # If the user is not logged in, redirect to signup page.
-        if not request.user.is_authenticated:
-            return redirect("home")
-            # return redirect("signup")
-        return super().get(request, *args, **kwargs)
     
-class CreateRepositoryView(CreateView):
+class CreateRepositoryView(LoginRequiredMixin,CreateView):
     model = Repository
     fields = ["name"]
     template_name = "repository/repository_new.html"
@@ -69,7 +63,7 @@ class CreateRepositoryView(CreateView):
         
         return super(CreateRepositoryView, self).form_valid(form)
     
-class RepositoryDetailView(DetailView):
+class RepositoryDetailView(LoginRequiredMixin,DetailView):
     model = Repository
     template_name = "repository/repository_detail.html"
     context_object_name = "repository"
@@ -84,7 +78,7 @@ class RepositoryDetailView(DetailView):
         context["repo_auth_user_role"] = Repo_user.objects.all().filter(rp_user=self.request.user).filter(role__repo__repo_id = self.kwargs["repo_id"])
         return context
     
-class DeleteRepositoryView(RepoRolePermissionRequiredMixin,DeleteView):
+class DeleteRepositoryView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,DeleteView):
     model = Repository
     template_name = 'repository/repository_delete.html'
     pk_url_kwarg = "repo_id"
@@ -94,7 +88,7 @@ class DeleteRepositoryView(RepoRolePermissionRequiredMixin,DeleteView):
         return reverse('repo_list')
     
 #repo personal profile
-class PersonalProfileView(DetailView):
+class PersonalProfileView(LoginRequiredMixin,DetailView):
     model = User
     template_name = "repository/repository_personal_profile.html"
     pk_url_kwarg = "repo_id"
@@ -115,7 +109,7 @@ class PersonalProfileView(DetailView):
 
 #roles views
     
-class RolesListView(RepoRolePermissionRequiredMixin,ListView):
+class RolesListView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,ListView):
     model = Repo_role
     template_name = "repository/role/role_list.html"
     context_object_name = "role_list"
@@ -131,14 +125,7 @@ class RolesListView(RepoRolePermissionRequiredMixin,ListView):
         context["repo_users"] = Repo_user.objects.all().filter(role__repo__repo_id=self.kwargs["repo_id"])
         return context
 
-    def get(self, request: HttpRequest, *args: any, **kwargs: any) -> HttpResponse:
-        # If the user is not logged in, redirect to signup page.
-        if not request.user.is_authenticated:
-            return redirect("home")
-            # return redirect("signup")
-        return super().get(request, *args, **kwargs)
-
-class CreateRoleView(RepoRolePermissionRequiredMixin,CreateView):
+class CreateRoleView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,CreateView):
     model = Repo_role
     fields = ["role_name",
               "can_change_status_if_task_assigned",
@@ -177,7 +164,7 @@ class ModifyRoleView(RepoRolePermissionRequiredMixin,UpdateView):
     def get_object(self):
         return Repo_role.objects.get(role_id=self.kwargs["role_id"])
 
-class DeleteRoleView(RepoRolePermissionRequiredMixin,DeleteView):
+class DeleteRoleView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,DeleteView):
     model = Repo_role
     template_name = "repository/role/role_delete.html"
     context_object_name = "role"
@@ -190,7 +177,7 @@ class DeleteRoleView(RepoRolePermissionRequiredMixin,DeleteView):
     def get_object(self):
         return Repo_role.objects.get(role_id=self.kwargs["role_id"])
     
-class AssignRoleView(RepoRolePermissionRequiredMixin,CreateView):
+class AssignRoleView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,CreateView):
     form_class = AssignRoleForm
     template_name = "repository/role/role_assign.html"
     pk_url_kwarg = "repo_id"
@@ -209,7 +196,7 @@ class AssignRoleView(RepoRolePermissionRequiredMixin,CreateView):
         form.instance.role = Repo_role.objects.get(role_id=self.kwargs["role_id"])
         return super(AssignRoleView, self).form_valid(form)
 
-class RemoveAssignRoleView(RepoRolePermissionRequiredMixin,DeleteView):
+class RemoveAssignRoleView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,DeleteView):
     model = Repo_user
     template_name = "repository/role/role_remove_assign.html"
     pk_url_kwarg = "repo_id"
@@ -225,7 +212,7 @@ class RemoveAssignRoleView(RepoRolePermissionRequiredMixin,DeleteView):
 #repo_users views
 
    
-class UsersListView(RepoRolePermissionRequiredMixin,ListView):
+class UsersListView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,ListView):
     model = Repo_user
     template_name = "repository/repo_user/repo_user_list.html"
     context_object_name = "repo_user_list"
@@ -241,14 +228,7 @@ class UsersListView(RepoRolePermissionRequiredMixin,ListView):
         context["repo"] = Repository.objects.get(repo_id = self.kwargs["repo_id"])
         return context
 
-    def get(self, request: HttpRequest, *args: any, **kwargs: any) -> HttpResponse:
-        # If the user is not logged in, redirect to signup page.
-        if not request.user.is_authenticated:
-            return redirect("home")
-            # return redirect("signup")
-        return super().get(request, *args, **kwargs)
-
-class AddUserView(RepoRolePermissionRequiredMixin,CreateView):
+class AddUserView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,CreateView):
     form_class = AddUserForm
     template_name = "repository/repo_user/repo_user_add.html"
     pk_url_kwarg = "repo_id"
@@ -262,7 +242,7 @@ class AddUserView(RepoRolePermissionRequiredMixin,CreateView):
     def get_success_url(self):
         return reverse("repo_user_list", kwargs={"repo_id": self.kwargs["repo_id"] , "repo_name": self.kwargs["repo_name"]})
 
-class RemoveUserView(RepoRolePermissionRequiredMixin,DeleteView):
+class RemoveUserView(LoginRequiredMixin,RepoRolePermissionRequiredMixin,DeleteView):
     model = Repo_user
     template_name = "repository/repo_user/repo_user_remove.html"
     required_permissions=["can_manage_users"]
